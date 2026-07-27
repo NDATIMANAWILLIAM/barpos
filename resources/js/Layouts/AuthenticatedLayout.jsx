@@ -23,13 +23,13 @@ const I = {
 
 // ── Config ────────────────────────────────────────────────────────────────────
 const ROLE_META = {
-    owner:        { label: 'Super Manager', colour: 'bg-amber-500',   text: 'text-amber-700',  badge: 'bg-amber-100'   },
+    owner:        { label: 'Super Manager', colour: 'bg-brass-500',   text: 'text-brass-700',  badge: 'bg-brass-100'   },
     manager:      { label: 'Manager',       colour: 'bg-blue-500',    text: 'text-blue-700',   badge: 'bg-blue-100'    },
     cashier:      { label: 'Cashier',       colour: 'bg-emerald-500', text: 'text-emerald-700',badge: 'bg-emerald-100' },
     waiter:       { label: 'Servant',       colour: 'bg-purple-500',  text: 'text-purple-700', badge: 'bg-purple-100'  },
     receptionist: { label: 'Receptionist',  colour: 'bg-pink-500',    text: 'text-pink-700',   badge: 'bg-pink-100'    },
     kitchen:      { label: 'Kitchen Staff', colour: 'bg-orange-500',  text: 'text-orange-700', badge: 'bg-orange-100'  },
-    storekeeper:  { label: 'Storekeeper',   colour: 'bg-slate-500',   text: 'text-slate-700',  badge: 'bg-slate-100'   },
+    storekeeper:  { label: 'Storekeeper',   colour: 'bg-ink-500',   text: 'text-ink-700',  badge: 'bg-ink-100'   },
 };
 const ADMIN     = ['owner', 'manager'];
 const POS_ROLES = ['owner', 'manager', 'cashier', 'waiter'];
@@ -69,9 +69,9 @@ function NavItem({ href, icon, label, active, badge, onClick }) {
     return (
         <Link href={href} onClick={onClick}
             className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
-                active ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/25' : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                active ? 'bg-brass-500 text-white shadow-lg shadow-brass-500/25' : 'text-ink-400 hover:bg-ink-800 hover:text-white'
             }`}>
-            <span className={`shrink-0 transition ${active ? 'text-white' : 'text-slate-500 group-hover:text-slate-300'}`}>{icon}</span>
+            <span className={`shrink-0 transition ${active ? 'text-white' : 'text-ink-500 group-hover:text-ink-300'}`}>{icon}</span>
             <span className="flex-1 truncate">{label}</span>
             {badge && <span className="rounded-full bg-red-500 px-1.5 py-0.5 text-xs font-bold text-white">{badge}</span>}
             {active && <div className="h-1.5 w-1.5 rounded-full bg-white/60" />}
@@ -83,7 +83,7 @@ function NavItem({ href, icon, label, active, badge, onClick }) {
 function NavGroup({ label, children }) {
     return (
         <div className="space-y-0.5">
-            <p className="mb-1 px-3 text-[10px] font-bold uppercase tracking-widest text-slate-600">{label}</p>
+            <p className="mb-1 px-3 text-[10px] font-bold uppercase tracking-widest text-ink-600">{label}</p>
             {children}
         </div>
     );
@@ -98,16 +98,16 @@ function Sidebar({ user, role, meta, navItems, onClose }) {
     const more  = navItems.filter(n => ['guide'].includes(n.match));
 
     return (
-        <div className="flex h-full flex-col bg-slate-900">
+        <div className="flex h-full flex-col bg-ink-900">
             {/* Logo */}
-            <div className="flex items-center gap-3 px-4 py-4 border-b border-slate-800">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 font-extrabold text-white text-lg shadow-lg">B</div>
+            <div className="flex items-center gap-3 px-4 py-4 border-b border-ink-800">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brass-600 font-serif text-lg font-semibold text-ink-950">B</div>
                 <div className="min-w-0">
-                    <p className="font-extrabold text-white leading-none tracking-tight">BarPOS</p>
-                    <p className="text-[10px] text-slate-500 mt-0.5 uppercase tracking-widest">Restaurant System</p>
+                    <p className="font-bold text-white leading-none tracking-tight">BarPOS</p>
+                    <p className="text-[10px] text-ink-400 mt-1 uppercase tracking-[0.2em]">Restaurant System</p>
                 </div>
                 {onClose && (
-                    <button onClick={onClose} className="ml-auto text-slate-500 hover:text-white transition lg:hidden">{I.x}</button>
+                    <button onClick={onClose} className="ml-auto text-ink-500 hover:text-white transition lg:hidden">{I.x}</button>
                 )}
             </div>
 
@@ -137,15 +137,15 @@ function Sidebar({ user, role, meta, navItems, onClose }) {
             </nav>
 
             {/* User card */}
-            <div className="border-t border-slate-800 px-3 py-3 space-y-2">
+            <div className="border-t border-ink-800 px-3 py-3 space-y-2">
                 {/* Owner badge */}
                 {role === 'owner' && (
-                    <div className="flex items-center gap-1.5 rounded-lg bg-amber-500/10 px-3 py-1.5">
+                    <div className="flex items-center gap-1.5 rounded-lg bg-brass-500/10 px-3 py-1.5">
                         {I.shield}
-                        <span className="text-xs font-bold text-amber-400 uppercase tracking-wide">Full Access · Owner</span>
+                        <span className="text-xs font-bold text-brass-400 uppercase tracking-wide">Full Access · Owner</span>
                     </div>
                 )}
-                <div className="flex items-center gap-3 rounded-xl bg-slate-800 px-3 py-3">
+                <div className="flex items-center gap-3 rounded-xl bg-ink-800 px-3 py-3">
                     <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-bold text-sm text-white shadow ${meta.colour}`}>
                         {user?.name?.charAt(0)?.toUpperCase()}
                     </div>
@@ -156,7 +156,7 @@ function Sidebar({ user, role, meta, navItems, onClose }) {
                 </div>
                 <div className="grid grid-cols-2 gap-1.5">
                     <Link href={route('profile.edit')} onClick={onClose}
-                        className="flex items-center justify-center gap-1.5 rounded-lg bg-slate-800 py-2 text-xs font-medium text-slate-400 hover:bg-slate-700 hover:text-white transition">
+                        className="flex items-center justify-center gap-1.5 rounded-lg bg-ink-800 py-2 text-xs font-medium text-ink-400 hover:bg-ink-700 hover:text-white transition">
                         {I.profile} Profile
                     </Link>
                     <Link href={route('logout')} method="post" as="button" onClick={onClose}
@@ -164,7 +164,7 @@ function Sidebar({ user, role, meta, navItems, onClose }) {
                         {I.logout} Log out
                     </Link>
                 </div>
-                <p className="text-center text-[10px] text-slate-600 px-1">
+                <p className="text-center text-[10px] text-ink-600 px-1">
                     To switch account: Log out first, then log in with the other account.
                 </p>
             </div>
@@ -176,7 +176,7 @@ function Sidebar({ user, role, meta, navItems, onClose }) {
 export default function AuthenticatedLayout({ header, children }) {
     const user   = usePage().props.auth.user;
     const role   = user?.role ?? '';
-    const meta   = ROLE_META[role] ?? { label: role, colour: 'bg-slate-500', text: 'text-slate-700', badge: 'bg-slate-100' };
+    const meta   = ROLE_META[role] ?? { label: role, colour: 'bg-ink-500', text: 'text-ink-700', badge: 'bg-ink-100' };
     const [sideOpen, setSideOpen] = useState(false);
     const closeSide = useCallback(() => setSideOpen(false), []);
 
@@ -198,7 +198,7 @@ export default function AuthenticatedLayout({ header, children }) {
     const initial = user?.name?.charAt(0)?.toUpperCase() ?? '?';
 
     return (
-        <div className="flex h-screen overflow-hidden bg-slate-100">
+        <div className="flex h-screen overflow-hidden bg-ink-100">
 
             {/* Desktop sidebar */}
             <aside className="hidden lg:flex w-60 shrink-0">
@@ -219,26 +219,26 @@ export default function AuthenticatedLayout({ header, children }) {
             <div className="flex flex-1 flex-col overflow-hidden">
 
                 {/* Top bar */}
-                <header className="flex h-14 shrink-0 items-center gap-3 border-b border-slate-200 bg-white px-4 shadow-sm print:hidden">
+                <header className="flex h-14 shrink-0 items-center gap-3 border-b border-ink-200 bg-white px-4 shadow-sm print:hidden">
                     {/* Mobile hamburger */}
-                    <button onClick={() => setSideOpen(true)} className="lg:hidden flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 transition">
+                    <button onClick={() => setSideOpen(true)} className="lg:hidden flex h-9 w-9 items-center justify-center rounded-lg text-ink-500 hover:bg-ink-100 transition">
                         {I.bars}
                     </button>
 
                     {/* Mobile logo */}
                     <div className="flex items-center gap-2 lg:hidden">
-                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500 font-extrabold text-white text-sm">B</div>
-                        <span className="font-bold text-slate-800 text-sm">BarPOS</span>
+                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-brass-500 font-extrabold text-white text-sm">B</div>
+                        <span className="font-bold text-ink-800 text-sm">BarPOS</span>
                     </div>
 
                     {/* Desktop: page header */}
-                    <div className="hidden lg:block text-base font-bold text-slate-800">
+                    <div className="hidden lg:block text-base font-bold text-ink-800">
                         {header}
                     </div>
 
                     {/* Right side */}
                     <div className="ml-auto flex items-center gap-3">
-                        <span className="hidden md:block text-xs text-slate-400">
+                        <span className="hidden md:block text-xs text-ink-400">
                             {new Date().toLocaleDateString('en-RW', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
                         </span>
                         <div className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white shadow-sm ${meta.colour}`} title={user?.name}>
@@ -249,8 +249,8 @@ export default function AuthenticatedLayout({ header, children }) {
 
                 {/* Mobile page header */}
                 {header && (
-                    <div className="lg:hidden border-b border-slate-200 bg-white px-4 py-2.5 print:hidden">
-                        <div className="text-sm font-bold text-slate-800">{header}</div>
+                    <div className="lg:hidden border-b border-ink-200 bg-white px-4 py-2.5 print:hidden">
+                        <div className="text-sm font-bold text-ink-800">{header}</div>
                     </div>
                 )}
 
