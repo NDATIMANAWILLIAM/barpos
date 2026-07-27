@@ -29,9 +29,10 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
 # Fail the build here (with a clear message) instead of deploying an image
 # that will only error at runtime when Laravel tries to open a DB connection.
 RUN php -r '\
-    $required = ["pdo_pgsql", "pdo_mysql", "mbstring", "curl", "gd", "bcmath", "zip", "intl", "pcntl", "exif", "opcache"]; \
+    $required = ["pdo_pgsql", "pdo_mysql", "mbstring", "curl", "gd", "bcmath", "zip", "intl", "pcntl", "exif"]; \
     $missing = array_filter($required, fn($e) => !extension_loaded($e)); \
-    if ($missing) { fwrite(STDERR, "Missing PHP extensions: " . implode(", ", $missing) . "\n"); exit(1); } \
+    if (!function_exists("opcache_get_status")) { $missing[] = "opcache"; } \
+    if ($missing) { echo "Missing PHP extensions: " . implode(", ", $missing) . "\n"; exit(1); } \
     echo "All required PHP extensions loaded OK\n";'
 
 RUN apk del libpng-dev libjpeg-turbo-dev freetype-dev libzip-dev postgresql-dev icu-dev oniguruma-dev curl-dev
