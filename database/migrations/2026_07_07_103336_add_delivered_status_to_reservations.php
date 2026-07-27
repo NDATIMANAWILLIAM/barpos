@@ -8,11 +8,24 @@ return new class extends Migration
 {
     public function up(): void
     {
-        \DB::statement("ALTER TABLE reservations MODIFY COLUMN status ENUM('pending','confirmed','seated','cancelled','no_show','delivered') NOT NULL DEFAULT 'pending'");
+        $this->alterStatusEnum("'pending','confirmed','seated','cancelled','no_show','delivered'");
     }
 
     public function down(): void
     {
-        \DB::statement("ALTER TABLE reservations MODIFY COLUMN status ENUM('pending','confirmed','seated','cancelled','no_show') NOT NULL DEFAULT 'pending'");
+        $this->alterStatusEnum("'pending','confirmed','seated','cancelled','no_show'");
+    }
+
+    private function alterStatusEnum(string $values): void
+    {
+        $driver = Schema::getConnection()->getDriverName();
+
+        if ($driver === 'pgsql') {
+            \DB::statement("ALTER TABLE reservations DROP CONSTRAINT IF EXISTS reservations_status_check");
+            \DB::statement("ALTER TABLE reservations ADD CONSTRAINT reservations_status_check CHECK (status IN ({$values}))");
+        } elseif ($driver === 'mysql' || $driver === 'mariadb') {
+            \DB::statement("ALTER TABLE reservations MODIFY COLUMN status ENUM({$values}) NOT NULL DEFAULT 'pending'");
+        }
+        // sqlite: enum is unenforced (plain varchar) — nothing to alter
     }
 };
