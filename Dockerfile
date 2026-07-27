@@ -35,7 +35,12 @@ RUN php -r '\
     if ($missing) { echo "Missing PHP extensions: " . implode(", ", $missing) . "\n"; exit(1); } \
     echo "All required PHP extensions loaded OK\n";'
 
-RUN apk del libpng-dev libjpeg-turbo-dev freetype-dev libzip-dev postgresql-dev icu-dev oniguruma-dev curl-dev
+# NOTE: deliberately not apk-del'ing the *-dev packages here. Alpine's `apk del`
+# auto-removes orphaned dependencies (unlike `apt remove`), which previously
+# took the actual runtime libpq.so with it — pdo_pgsql loaded fine at build
+# time (this verification step, above) but failed at runtime with
+# "could not find driver" because its shared library was gone by the time
+# the image was actually run. Costs some image size; worth it to avoid this.
 
 WORKDIR /var/www/html
 
