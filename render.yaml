@@ -1,9 +1,3 @@
-databases:
-  - name: barpos-db
-    plan: free
-    databaseName: barpos
-    user: barpos
-
 services:
   - type: web
     name: barpos
@@ -27,10 +21,12 @@ services:
         value: stderr
       - key: DB_CONNECTION
         value: pgsql
+      # Set to your Supabase "Session pooler" connection string
+      # (Project Settings -> Database -> Connection string -> Session pooler)
       - key: DB_URL
-        fromDatabase:
-          name: barpos-db
-          property: connectionString
+        sync: false
+      - key: DB_SSLMODE
+        value: require
       - key: SESSION_DRIVER
         value: database
       - key: CACHE_STORE
