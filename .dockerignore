@@ -22,7 +22,5 @@ tests
 .zed
 Thumbs.db
 .DS_Store
-Dockerfile
-docker
 render.yaml
 README.md
