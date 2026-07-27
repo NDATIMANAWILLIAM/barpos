@@ -15,6 +15,13 @@ cd /var/www/html
 
 php artisan config:clear
 php artisan migrate --force
+
+# Seeding is safe to re-run on every boot: it only uses firstOrCreate() and
+# never overwrites an existing user's password, so this won't clobber real
+# data once you start using the app for real. Useful for the Render test
+# deployment so login credentials always exist without a manual step.
+php artisan db:seed --force
+
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
