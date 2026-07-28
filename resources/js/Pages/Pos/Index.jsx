@@ -530,6 +530,12 @@ export default function Index({ categories, menuItems, tables, openOrders, today
                                     {openOrders.map((o) => {
                                         const readyCount = o.items.filter((i) => i.status === 'ready' || i.status === 'served').length;
                                         const isReady = o.status === 'ready';
+                                        const stations = ['kitchen', 'bar'].map((st) => {
+                                            const items = o.items.filter((i) => i.prep_station === st);
+                                            if (items.length === 0) return null;
+                                            const ready = items.filter((i) => i.status === 'ready' || i.status === 'served').length;
+                                            return { station: st, ready, total: items.length };
+                                        }).filter(Boolean);
                                         return (
                                             <div
                                                 key={o.id}
@@ -559,6 +565,18 @@ export default function Index({ categories, menuItems, tables, openOrders, today
                                                             {' · '}
                                                             {readyCount}/{o.items.length} item{o.items.length !== 1 ? 's' : ''} ready
                                                         </div>
+                                                        {stations.length > 0 && (
+                                                            <div className="mt-1 flex flex-wrap gap-1.5">
+                                                                {stations.map((s) => (
+                                                                    <span key={s.station}
+                                                                        className={`rounded px-1.5 py-0.5 text-xs font-medium ${
+                                                                            s.ready === s.total ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
+                                                                        }`}>
+                                                                        {s.station === 'kitchen' ? 'Kitchen' : 'Bar'}: {s.ready}/{s.total}
+                                                                    </span>
+                                                                ))}
+                                                            </div>
+                                                        )}
                                                     </div>
                                                     <div className="shrink-0 text-right">
                                                         <div className="text-sm font-semibold text-gray-800">

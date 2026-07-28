@@ -476,7 +476,7 @@ export default function Menu({ categories, table, business, contact }) {
                         <a href="/book"
                             className="mt-2 flex items-center gap-2 rounded-xl bg-brass-500 px-3 py-2 hover:bg-brass-400 transition">
                             <Icon.calendar className="h-4 w-4 shrink-0 text-white" />
-                            <span className="text-sm font-bold text-white">Book a Table</span>
+                            <span className="text-sm font-bold text-white">Book a Table or Delivery</span>
                         </a>
                     </div>
 
@@ -745,7 +745,7 @@ export default function Menu({ categories, table, business, contact }) {
                                 )}
                                 <a href="/book"
                                     className="inline-flex items-center gap-2 rounded-2xl bg-ink-900 px-6 py-3 text-sm font-bold text-white shadow hover:bg-ink-800 transition">
-                                    <Icon.calendar className="h-4 w-4" /> Book a Table
+                                    <Icon.calendar className="h-4 w-4" /> Book a Table or Delivery
                                 </a>
                                 <p className="text-xs text-ink-300">All prices in Rwandan Francs (RWF) · Inclusive of taxes</p>
                             </footer>

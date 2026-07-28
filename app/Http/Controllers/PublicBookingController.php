@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BusinessProfile;
 use App\Models\DiningTable;
 use App\Models\Reservation;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -11,11 +13,19 @@ class PublicBookingController extends Controller
 {
     public function show()
     {
+        $business = BusinessProfile::first();
+
         return Inertia::render('Public/Book', [
             'business' => [
-                'name'    => config('app.business_name', config('app.name', 'Isaro Rubengera')),
-                'phone'   => config('app.business_phone', ''),
-                'address' => config('app.business_address', ''),
+                'name'    => $business?->name ?? config('app.name', 'Isaro Rubengera'),
+                'phone'   => $business?->phone,
+                'address' => $business?->address,
+            ],
+            // Whoever's on duty right now — same "who to call" concept as
+            // the guest menu, editable by owner/manager from the dashboard.
+            'contact' => [
+                'name'  => Setting::get('on_duty_contact_name') ?: null,
+                'phone' => Setting::get('on_duty_contact_phone') ?: $business?->phone,
             ],
             'tables' => DiningTable::where('status', 'free')
                 ->orderBy('zone')->orderBy('label')

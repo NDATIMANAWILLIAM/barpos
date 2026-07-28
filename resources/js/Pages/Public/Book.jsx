@@ -23,7 +23,7 @@ function Field({ label, error, children, hint }) {
     );
 }
 
-export default function Book({ business, tables, minDate, maxDate }) {
+export default function Book({ business, contact, tables, minDate, maxDate }) {
     const { props } = usePage();
     const booked = props.flash?.booked;
 
@@ -112,6 +112,15 @@ export default function Book({ business, tables, minDate, maxDate }) {
                         <p className="flex items-center justify-center gap-1 text-ink-400 text-xs mt-1">
                             <Icon.pin className="h-3 w-3" /> {business.address}
                         </p>
+                    )}
+                    {contact?.phone && (
+                        <a href={`tel:${contact.phone}`}
+                            className="mt-3 inline-flex items-center gap-2 rounded-xl bg-white/10 px-3.5 py-2 hover:bg-white/15 transition">
+                            <Icon.phone className="h-4 w-4 text-brass-300" />
+                            <span className="text-sm font-bold">
+                                Need help booking? Call {contact.name ? `${contact.name} · ` : ''}{contact.phone}
+                            </span>
+                        </a>
                     )}
                 </div>
 
