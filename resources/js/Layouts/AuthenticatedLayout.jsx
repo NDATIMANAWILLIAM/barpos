@@ -1,4 +1,4 @@
-import { Link, usePage } from '@inertiajs/react';
+import { Link, usePage, router } from '@inertiajs/react';
 import { useState, useEffect, useCallback } from 'react';
 
 // ── Inline SVG Icons ─────────────────────────────────────────────────────────
@@ -19,7 +19,77 @@ const I = {
     check:    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>,
     shield:   <svg viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3"><path fillRule="evenodd" d="M12.516 2.17a.75.75 0 00-1.032 0 11.209 11.209 0 01-7.877 3.08.75.75 0 00-.722.515A12.74 12.74 0 002.25 9.75c0 5.942 4.064 10.933 9.563 12.348a.749.749 0 00.374 0c5.499-1.415 9.563-6.406 9.563-12.348 0-1.39-.223-2.73-.635-3.985a.75.75 0 00-.722-.516l-.143.001c-2.996 0-5.717-1.17-7.704-3.08z" clipRule="evenodd"/></svg>,
     ops:      <svg viewBox="0 0 24 24" fill="currentColor" className="w-[18px] h-[18px]"><path d="M3 13.5a.75.75 0 01.75-.75h16.5a.75.75 0 010 1.5H3.75A.75.75 0 013 13.5zM3 8.25a.75.75 0 01.75-.75h16.5a.75.75 0 010 1.5H3.75A.75.75 0 013 8.25zM3 18.75a.75.75 0 01.75-.75h16.5a.75.75 0 010 1.5H3.75a.75.75 0 01-.75-.75z"/><circle cx="19" cy="5" r="4" fill="#ef4444"/><text x="19" y="7" fontSize="5" fill="white" textAnchor="middle">!</text></svg>,
+    bell:     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 8a6 6 0 1112 0c0 4 1.5 5.5 2 6.5H4c.5-1 2-2.5 2-6.5z"/><path strokeLinecap="round" d="M10 19a2 2 0 004 0"/></svg>,
 };
+
+function fmtRelative(iso) {
+    const mins = Math.floor((Date.now() - new Date(iso)) / 60000);
+    if (mins < 1) return 'just now';
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    return `${Math.floor(hrs / 24)}d ago`;
+}
+
+// ── Notification Bell ────────────────────────────────────────────────────────
+function NotificationBell({ notifications }) {
+    const [open, setOpen] = useState(false);
+    const count = notifications.length;
+
+    const openItem = (n) => {
+        router.patch(route('notifications.read', n.id), {}, { preserveScroll: true });
+        setOpen(false);
+        if (n.data.url) router.visit(n.data.url);
+    };
+
+    const markAllRead = () => {
+        router.patch(route('notifications.read-all'), {}, { preserveScroll: true });
+        setOpen(false);
+    };
+
+    return (
+        <div className="relative">
+            <button onClick={() => setOpen(!open)}
+                className="relative flex h-8 w-8 items-center justify-center rounded-full text-ink-500 hover:bg-ink-100 transition">
+                {I.bell}
+                {count > 0 && (
+                    <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
+                        {count > 9 ? '9+' : count}
+                    </span>
+                )}
+            </button>
+            {open && (
+                <>
+                    <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+                    <div className="absolute right-0 top-10 z-50 w-80 rounded-2xl bg-white shadow-2xl ring-1 ring-ink-100 overflow-hidden">
+                        <div className="flex items-center justify-between border-b border-ink-100 px-4 py-2.5">
+                            <p className="text-sm font-bold text-ink-800">Notifications</p>
+                            {count > 0 && (
+                                <button onClick={markAllRead} className="text-xs font-semibold text-brass-600 hover:underline">
+                                    Mark all read
+                                </button>
+                            )}
+                        </div>
+                        <div className="max-h-80 overflow-y-auto divide-y divide-ink-50">
+                            {count === 0 ? (
+                                <p className="px-4 py-8 text-center text-sm text-ink-400">You're all caught up.</p>
+                            ) : notifications.map((n) => (
+                                <button key={n.id} onClick={() => openItem(n)}
+                                    className="flex w-full items-start gap-2 px-4 py-3 text-left hover:bg-ink-50 transition">
+                                    <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-brass-500" />
+                                    <div className="min-w-0 flex-1">
+                                        <p className="text-sm text-ink-800">{n.data.text}</p>
+                                        <p className="mt-0.5 text-xs text-ink-400">{fmtRelative(n.created_at)}</p>
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </>
+            )}
+        </div>
+    );
+}
 
 // ── Config ────────────────────────────────────────────────────────────────────
 const ROLE_META = {
@@ -174,7 +244,8 @@ function Sidebar({ user, role, meta, navItems, onClose }) {
 
 // ── Main Layout ───────────────────────────────────────────────────────────────
 export default function AuthenticatedLayout({ header, children }) {
-    const user   = usePage().props.auth.user;
+    const user          = usePage().props.auth.user;
+    const notifications = usePage().props.notifications ?? [];
     const role   = user?.role ?? '';
     const meta   = ROLE_META[role] ?? { label: role, colour: 'bg-ink-500', text: 'text-ink-700', badge: 'bg-ink-100' };
     const [sideOpen, setSideOpen] = useState(false);
@@ -241,6 +312,7 @@ export default function AuthenticatedLayout({ header, children }) {
                         <span className="hidden md:block text-xs text-ink-400">
                             {new Date().toLocaleDateString('en-RW', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
                         </span>
+                        <NotificationBell notifications={notifications} />
                         <div className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white shadow-sm ${meta.colour}`} title={user?.name}>
                             {initial}
                         </div>

@@ -35,3 +35,25 @@ services:
         value: database
       - key: FILESYSTEM_DISK
         value: local
+      # Email is safe to leave unset — Laravel defaults MAIL_MAILER to "log"
+      # (notifications save fine, emails just don't send). To turn on real
+      # email later, set these in Render's dashboard (not here) using e.g.
+      # Gmail SMTP: host smtp.gmail.com, port 587, encryption tls, username
+      # your Gmail address, password a Google "App Password" (not your
+      # normal password — generate one at myaccount.google.com/apppasswords).
+      - key: MAIL_MAILER
+        sync: false
+      - key: MAIL_HOST
+        sync: false
+      - key: MAIL_PORT
+        sync: false
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: MAIL_ENCRYPTION
+        sync: false
+      - key: MAIL_FROM_ADDRESS
+        sync: false
+      - key: MAIL_FROM_NAME
+        value: BarPOS

@@ -8,16 +8,20 @@ const STATUS_COLORS = {
     open:      'bg-blue-100 text-blue-700',
     ready:     'bg-green-100 text-green-700',
     served:    'bg-gray-100 text-gray-600',
+    paid:      'bg-emerald-100 text-emerald-700',
     cancelled: 'bg-red-100 text-red-600',
 };
 
-export default function Index({ categories, menuItems, tables, openOrders }) {
+const fmtTime = (iso) => new Date(iso).toLocaleTimeString('en-RW', { hour: '2-digit', minute: '2-digit' });
+
+export default function Index({ categories, menuItems, tables, openOrders, todaysOrders }) {
     const [cart, setCart]         = useState([]);
     const [type, setType]         = useState('dine_in');
     const [tableId, setTableId]   = useState('');
     const [notes, setNotes]       = useState('');
     const [activeCat, setActiveCat] = useState('all');
     const [saving, setSaving]     = useState(false);
+    const [ordersTab, setOrdersTab] = useState('open'); // 'open' | 'history'
 
     // Custom charge form (room, accommodation, service fee, etc.)
     const [showCustom, setShowCustom]         = useState(false);
@@ -424,10 +428,66 @@ export default function Index({ categories, menuItems, tables, openOrders }) {
                             </div>
                         </div>
 
-                        {/* Open orders */}
+                        {/* Open orders / history */}
                         <div className="rounded-lg bg-white p-4 shadow">
-                            <h3 className="mb-3 font-semibold text-gray-800">Open orders</h3>
-                            {openOrders.length === 0 ? (
+                            <div className="mb-3 flex items-center gap-2">
+                                <button
+                                    onClick={() => setOrdersTab('open')}
+                                    className={`rounded-full px-3 py-1 text-xs font-bold transition ${ordersTab === 'open' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
+                                >
+                                    Open ({openOrders.length})
+                                </button>
+                                <button
+                                    onClick={() => setOrdersTab('history')}
+                                    className={`rounded-full px-3 py-1 text-xs font-bold transition ${ordersTab === 'history' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
+                                >
+                                    Today's History ({todaysOrders.length})
+                                </button>
+                            </div>
+
+                            {ordersTab === 'history' ? (
+                                todaysOrders.length === 0 ? (
+                                    <p className="text-sm text-gray-400">No orders yet today.</p>
+                                ) : (
+                                    <div className="space-y-2">
+                                        {todaysOrders.map((o) => (
+                                            <div key={o.id} className="rounded-lg border border-gray-100 p-3">
+                                                <div className="flex items-start justify-between gap-2">
+                                                    <div className="min-w-0">
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="text-sm font-medium text-gray-800">#{o.order_number}</span>
+                                                            <span className={`rounded px-1.5 py-0.5 text-xs font-medium ${STATUS_COLORS[o.status] ?? 'bg-gray-100 text-gray-600'}`}>
+                                                                {o.status}
+                                                            </span>
+                                                        </div>
+                                                        <div className="mt-0.5 text-xs text-gray-400">
+                                                            {fmtTime(o.created_at)}
+                                                            {o.table && ` · ${o.table.label}`}
+                                                            {' · '}
+                                                            {o.waiter?.name ?? 'Client (self-order)'}
+                                                            {' · '}
+                                                            {o.items.length} item{o.items.length !== 1 ? 's' : ''}
+                                                        </div>
+                                                    </div>
+                                                    <div className="shrink-0 text-right text-sm font-semibold text-gray-800">
+                                                        {rwf(o.total)}
+                                                    </div>
+                                                </div>
+                                                {o.status !== 'paid' && o.status !== 'cancelled' && (
+                                                    <div className="mt-2">
+                                                        <Link
+                                                            href={route('payments.show', o.id)}
+                                                            className="inline-block rounded bg-green-600 px-3 py-1 text-xs font-medium text-white hover:bg-green-700"
+                                                        >
+                                                            Pay
+                                                        </Link>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )
+                            ) : openOrders.length === 0 ? (
                                 <p className="text-sm text-gray-400">No open orders.</p>
                             ) : (
                                 <div className="space-y-2">

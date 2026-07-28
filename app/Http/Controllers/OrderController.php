@@ -22,13 +22,20 @@ class OrderController extends Controller
                 ->orderBy('name')
                 ->get(),
             'tables'     => DiningTable::orderBy('label')->get(),
-            'openOrders' => Order::with(['items', 'table'])
+            'openOrders' => Order::with(['items', 'table', 'waiter'])
                 ->whereNotIn('status', ['paid', 'cancelled'])
                 // Ready orders need to be picked up and served — surface
                 // them above orders still being prepared, regardless of age.
                 ->orderByRaw("status = 'ready' desc")
                 ->latest()
                 ->take(20)
+                ->get(),
+            // Once an order is paid it used to vanish from a waiter's view
+            // entirely, with no way to look it up again — today's full
+            // history (any status) covers that.
+            'todaysOrders' => Order::with(['items', 'table', 'waiter'])
+                ->whereDate('created_at', today())
+                ->latest()
                 ->get(),
         ]);
     }

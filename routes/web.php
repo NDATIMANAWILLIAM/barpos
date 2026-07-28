@@ -14,6 +14,7 @@ use App\Http\Controllers\StaffController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\OperationsController;
 use App\Http\Controllers\CustomerOrderController;
+use App\Http\Controllers\NotificationController;
 
 // ── Public routes (no auth) ────────────────────────────────────────────────
 Route::get('/',          [PublicMenuController::class, 'show'])->name('public.menu');
@@ -86,13 +87,32 @@ Route::middleware(['auth', 'role'])->group(function () {
                 'reservations_today' => \App\Models\Reservation::whereDate('scheduled_at', today())->count(),
             ],
             'activity' => $activity,
+            'onDutyContact' => [
+                'name'  => \App\Models\Setting::get('on_duty_contact_name', ''),
+                'phone' => \App\Models\Setting::get('on_duty_contact_phone', ''),
+            ],
         ]);
     })->name('dashboard');
+
+    // On-duty contact — who clients should call right now (owner/manager only)
+    Route::middleware('role:owner,manager')->patch('/dashboard/contact', function (\Illuminate\Http\Request $request) {
+        $data = $request->validate([
+            'name'  => 'nullable|string|max:100',
+            'phone' => 'nullable|string|max:30',
+        ]);
+        \App\Models\Setting::set('on_duty_contact_name', $data['name'] ?? '');
+        \App\Models\Setting::set('on_duty_contact_phone', $data['phone'] ?? '');
+        return back()->with('success', 'On-duty contact updated.');
+    })->name('dashboard.contact');
 
     // Profile — every role
     Route::get('/profile',    [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile',  [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [\App\Http\Controllers\ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Notifications — every role
+    Route::patch('/notifications/{id}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
+    Route::patch('/notifications/read-all',  [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
 
     // ── POS (owner, manager, cashier, waiter) ──────────────────────────────
     Route::middleware('role:owner,manager,cashier,waiter')->group(function () {

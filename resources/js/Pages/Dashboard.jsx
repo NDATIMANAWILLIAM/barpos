@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, router, usePage } from '@inertiajs/react';
-import { useEffect } from 'react';
+import { Head, Link, router, usePage, useForm } from '@inertiajs/react';
+import { useEffect, useState } from 'react';
 
 const rwf = (n) => 'RWF ' + new Intl.NumberFormat('en-RW').format(n ?? 0);
 
@@ -59,7 +59,72 @@ function fmtTime(iso) {
     return new Date(iso).toLocaleTimeString('en-RW', { hour: '2-digit', minute: '2-digit' });
 }
 
-export default function Dashboard({ stats, activity }) {
+// ── On-Duty Contact ──────────────────────────────────────────────────────────
+// The phone number clients/staff should call right now — changeable per
+// shift rather than a fixed business number, since who's available varies.
+function OnDutyContact({ contact, canEdit }) {
+    const [editing, setEditing] = useState(false);
+    const form = useForm({ name: contact?.name ?? '', phone: contact?.phone ?? '' });
+
+    const save = (e) => {
+        e.preventDefault();
+        form.patch(route('dashboard.contact'), { preserveScroll: true, onSuccess: () => setEditing(false) });
+    };
+
+    if (editing) {
+        return (
+            <div className="rounded-2xl bg-white shadow-sm ring-1 ring-slate-100 p-4">
+                <form onSubmit={save} className="flex flex-wrap items-end gap-3">
+                    <div>
+                        <label className="block text-xs font-semibold text-slate-500 mb-1">On-duty contact name</label>
+                        <input className="rounded-lg border-slate-300 text-sm" value={form.data.name}
+                            onChange={e => form.setData('name', e.target.value)} placeholder="e.g. Jean Pierre" />
+                    </div>
+                    <div>
+                        <label className="block text-xs font-semibold text-slate-500 mb-1">Phone number</label>
+                        <input className="rounded-lg border-slate-300 text-sm" value={form.data.phone}
+                            onChange={e => form.setData('phone', e.target.value)} placeholder="07X XXX XXXX" />
+                    </div>
+                    <button type="submit" disabled={form.processing}
+                        className="rounded-lg bg-indigo-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50">
+                        Save
+                    </button>
+                    <button type="button" onClick={() => setEditing(false)}
+                        className="rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-500">
+                        Cancel
+                    </button>
+                </form>
+            </div>
+        );
+    }
+
+    return (
+        <div className="flex items-center gap-4 rounded-2xl bg-white shadow-sm ring-1 ring-slate-100 p-4">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 font-bold text-sm">
+                ON
+            </div>
+            <div className="min-w-0 flex-1">
+                <p className="text-xs font-bold uppercase tracking-wide text-slate-400">On duty now — clients call this number</p>
+                {contact?.phone ? (
+                    <p className="text-sm font-semibold text-slate-800">
+                        {contact.name && `${contact.name} · `}
+                        <a href={`tel:${contact.phone}`} className="text-indigo-600 hover:underline">{contact.phone}</a>
+                    </p>
+                ) : (
+                    <p className="text-sm text-slate-400">Not set</p>
+                )}
+            </div>
+            {canEdit && (
+                <button onClick={() => setEditing(true)}
+                    className="shrink-0 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50">
+                    Change
+                </button>
+            )}
+        </div>
+    );
+}
+
+export default function Dashboard({ stats, activity, onDutyContact }) {
     const user = usePage().props.auth.user;
     const role = user?.role ?? '';
     const roleLabel = ROLE_LABEL[role] ?? role;
@@ -105,6 +170,9 @@ export default function Dashboard({ stats, activity }) {
                         </div>
                     </div>
                 </div>
+
+                {/* ── On-duty contact ── */}
+                <OnDutyContact contact={onDutyContact} canEdit={has(ADMIN)} />
 
                 {/* ── Stats Grid ── */}
                 <div>

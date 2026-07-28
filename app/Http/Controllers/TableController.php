@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DiningTable;
 use App\Models\User;
+use App\Notifications\TableAssigned;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -40,10 +41,14 @@ class TableController extends Controller
             'servant_id' => 'nullable|exists:users,id',
         ]);
 
-        DiningTable::create(array_merge($data, [
+        $table = DiningTable::create(array_merge($data, [
             'status'   => 'free',
             'qr_token' => Str::random(12),
         ]));
+
+        if ($data['servant_id'] ?? null) {
+            User::find($data['servant_id'])?->notify(new TableAssigned($table, $request->user()));
+        }
 
         return back()->with('success', 'Table added.');
     }
@@ -57,7 +62,15 @@ class TableController extends Controller
             'status'     => 'required|in:free,occupied,reserved,cleaning',
             'servant_id' => 'nullable|exists:users,id',
         ]);
+
+        $servantChanged = ($data['servant_id'] ?? null) && $data['servant_id'] != $table->servant_id;
+
         $table->update($data);
+
+        if ($servantChanged) {
+            User::find($data['servant_id'])?->notify(new TableAssigned($table, $request->user()));
+        }
+
         return back()->with('success', 'Table updated.');
     }
 

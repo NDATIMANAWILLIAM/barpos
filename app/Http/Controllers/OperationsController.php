@@ -6,6 +6,7 @@ use App\Models\DiningTable;
 use App\Models\Order;
 use App\Models\Reservation;
 use App\Models\User;
+use App\Notifications\TableAssigned;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -154,6 +155,12 @@ class OperationsController extends Controller
     {
         $request->validate(['servant_id' => 'nullable|exists:users,id']);
         $table->update(['servant_id' => $request->servant_id]);
+
+        if ($request->servant_id) {
+            $servant = User::find($request->servant_id);
+            $servant?->notify(new TableAssigned($table, $request->user()));
+        }
+
         return back()->with('success', 'Table assigned.');
     }
 }
