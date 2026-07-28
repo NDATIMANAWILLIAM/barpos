@@ -16,7 +16,7 @@ const ROLE_DESC = {
     owner:        'Full control — add/delete staff, all settings, all reports',
     manager:      'Same as owner except cannot delete owner accounts',
     cashier:      'POS + process payments + print receipts',
-    waiter:       'Take orders in POS + manage reservations + live operations',
+    waiter:       'Take orders in POS + process payments + manage reservations + live operations',
     receptionist: 'Handle reservations and bookings — call clients, confirm requests',
     kitchen:      'Kitchen display only — mark items ready',
     storekeeper:  'Inventory management only',

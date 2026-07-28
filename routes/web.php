@@ -121,8 +121,8 @@ Route::middleware(['auth', 'role'])->group(function () {
         Route::patch('/pos/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('pos.orders.cancel');
     });
 
-    // ── Payments (owner, manager, cashier) ─────────────────────────────────
-    Route::middleware('role:owner,manager,cashier')->group(function () {
+    // ── Payments (owner, manager, cashier, waiter) ─────────────────────────
+    Route::middleware('role:owner,manager,cashier,waiter')->group(function () {
         Route::get('/pos/orders/{order}/pay',      [PaymentController::class, 'show'])->name('payments.show');
         Route::post('/pos/orders/{order}/pay',     [PaymentController::class, 'store'])->name('payments.store');
         Route::get('/pos/orders/{order}/receipt',  [PaymentController::class, 'receipt'])->name('payments.receipt');
