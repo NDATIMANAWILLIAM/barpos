@@ -155,6 +155,7 @@ Route::middleware(['auth', 'role'])->group(function () {
         // Reports (owner, manager only — extras get it via permissions)
         Route::get('/reports', [ReportsController::class, 'index'])->name('reports.index');
         Route::get('/reports/period', [ReportsController::class, 'index'])->name('reports.period');
+        Route::get('/reports/export', [ReportsController::class, 'export'])->name('reports.export');
     });
 });
 

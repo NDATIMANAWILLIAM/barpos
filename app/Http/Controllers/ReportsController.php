@@ -17,6 +17,93 @@ class ReportsController extends Controller
     {
         $period = $request->get('period', 'today');
 
+        return Inertia::render('Reports/Index', ['period' => $period] + $this->reportData($period));
+    }
+
+    /**
+     * CSV export (opens directly in Excel) of the same report data shown
+     * on-screen for the given period — revenue, categories, payment
+     * methods, top items, and staff performance as clearly labelled
+     * sections separated by blank rows.
+     */
+    public function export(Request $request)
+    {
+        $period = $request->get('period', 'today');
+        $data   = $this->reportData($period);
+
+        $periodLabels = [
+            'today' => 'Today', 'week' => 'This Week', 'month' => 'This Month',
+            'year' => 'This Year', 'all' => 'All Time',
+        ];
+
+        $filename = 'barpos-report-' . $period . '-' . now()->format('Y-m-d') . '.csv';
+
+        return response()->streamDownload(function () use ($data, $period, $periodLabels) {
+            $out = fopen('php://output', 'w');
+            fwrite($out, "\xEF\xBB\xBF"); // UTF-8 BOM so Excel renders RWF/accents correctly
+
+            fputcsv($out, ['BarPOS Revenue Report']);
+            fputcsv($out, ['Period', $periodLabels[$period] ?? $period]);
+            fputcsv($out, ['Generated', now()->format('Y-m-d H:i')]);
+            fputcsv($out, []);
+
+            fputcsv($out, ['REVENUE SUMMARY']);
+            fputcsv($out, ['Metric', 'Value (RWF)']);
+            fputcsv($out, ['Selected period', $data['revenue']['period']]);
+            fputcsv($out, ['Today', $data['revenue']['today']]);
+            fputcsv($out, ['This week', $data['revenue']['week']]);
+            fputcsv($out, ['This month', $data['revenue']['month']]);
+            fputcsv($out, ['This year', $data['revenue']['year']]);
+            fputcsv($out, ['All time', $data['revenue']['all']]);
+            fputcsv($out, []);
+
+            fputcsv($out, ['ORDERS']);
+            fputcsv($out, ['Metric', 'Count']);
+            fputcsv($out, ['Total', $data['orders']['total']]);
+            fputcsv($out, ['Paid', $data['orders']['paid']]);
+            fputcsv($out, ['Open', $data['orders']['open']]);
+            fputcsv($out, ['Cancelled', $data['orders']['cancelled']]);
+            fputcsv($out, []);
+
+            fputcsv($out, ['REVENUE BY CATEGORY']);
+            fputcsv($out, ['Category', 'Kind', 'Qty Sold', 'Revenue (RWF)']);
+            foreach ($data['byCategory'] as $c) {
+                fputcsv($out, [$c['name'], $c['kind'], $c['qty'], $c['revenue']]);
+            }
+            fputcsv($out, []);
+
+            fputcsv($out, ['PAYMENT METHODS']);
+            fputcsv($out, ['Method', 'Transactions', 'Total (RWF)']);
+            foreach ($data['byMethod'] as $m) {
+                fputcsv($out, [$m['method'], $m['count'], $m['total']]);
+            }
+            fputcsv($out, []);
+
+            fputcsv($out, ['TOP SELLING ITEMS']);
+            fputcsv($out, ['Item', 'Qty Sold', 'Revenue (RWF)']);
+            foreach ($data['topItems'] as $i) {
+                fputcsv($out, [$i['name'], $i['qty'], $i['revenue']]);
+            }
+            fputcsv($out, []);
+
+            fputcsv($out, ['STAFF PERFORMANCE']);
+            fputcsv($out, ['Staff', 'Role', 'Orders', 'Bookings Confirmed', 'Payments', 'Revenue Generated (RWF)']);
+            foreach ($data['workerPerf'] as $w) {
+                fputcsv($out, [$w['name'], $w['role'], $w['orders'], $w['reservations'], $w['payments'], $w['revenue']]);
+            }
+
+            fclose($out);
+        }, $filename, [
+            'Content-Type' => 'text/csv',
+        ]);
+    }
+
+    /**
+     * Shared data-gathering used by both the on-screen report and the CSV
+     * export, so the two never drift apart.
+     */
+    private function reportData(string $period): array
+    {
         [$start, $end, $chartDays] = match ($period) {
             'week'  => [now()->startOfWeek(),  now()->endOfDay(), 7],
             'month' => [now()->startOfMonth(), now()->endOfDay(), (int) now()->format('d')],
@@ -204,9 +291,9 @@ class ReportsController extends Controller
             ->values()
             ->take(50);
 
-        return Inertia::render('Reports/Index', compact(
-            'period', 'revenue', 'orders', 'byCategory', 'foodTotal', 'drinkTotal',
+        return compact(
+            'revenue', 'orders', 'byCategory', 'foodTotal', 'drinkTotal',
             'byMethod', 'topItems', 'trend', 'workerPerf', 'activity'
-        ));
+        );
     }
 }

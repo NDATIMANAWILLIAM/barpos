@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, Link } from '@inertiajs/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const rwf = (n) => new Intl.NumberFormat('en-RW').format(n) + ' RWF';
 
@@ -26,6 +26,16 @@ export default function Index({ categories, menuItems, tables, openOrders }) {
     const [customQty, setCustomQty]           = useState(1);
     const [customNights, setCustomNights]     = useState(1);
     const [customMode, setCustomMode]         = useState('room'); // 'room' | 'other'
+
+    // Poll for order status changes (e.g. kitchen marking items ready) — a
+    // waiter has no other way to know an order is ready without this, since
+    // nothing pushes that update to them otherwise.
+    useEffect(() => {
+        const t = setInterval(() => {
+            router.reload({ only: ['openOrders'], preserveScroll: true, preserveState: true });
+        }, 20000);
+        return () => clearInterval(t);
+    }, []);
 
     // Category tabs
     const catList = [
@@ -421,56 +431,61 @@ export default function Index({ categories, menuItems, tables, openOrders }) {
                                 <p className="text-sm text-gray-400">No open orders.</p>
                             ) : (
                                 <div className="space-y-2">
-                                    {openOrders.map((o) => (
-                                        <div
-                                            key={o.id}
-                                            className="rounded-lg border border-gray-100 p-3"
-                                        >
-                                            <div className="flex items-start justify-between gap-2">
-                                                <div className="min-w-0">
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="text-sm font-medium text-gray-800">
-                                                            #{o.order_number}
-                                                        </span>
-                                                        <span
-                                                            className={`rounded px-1.5 py-0.5 text-xs font-medium ${
-                                                                STATUS_COLORS[o.status] ??
-                                                                'bg-gray-100 text-gray-600'
-                                                            }`}
-                                                        >
-                                                            {o.status}
-                                                        </span>
+                                    {openOrders.map((o) => {
+                                        const readyCount = o.items.filter((i) => i.status === 'ready' || i.status === 'served').length;
+                                        const isReady = o.status === 'ready';
+                                        return (
+                                            <div
+                                                key={o.id}
+                                                className={`rounded-lg border p-3 ${
+                                                    isReady ? 'border-green-300 bg-green-50 ring-1 ring-green-200' : 'border-gray-100'
+                                                }`}
+                                            >
+                                                <div className="flex items-start justify-between gap-2">
+                                                    <div className="min-w-0">
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="text-sm font-medium text-gray-800">
+                                                                #{o.order_number}
+                                                            </span>
+                                                            <span
+                                                                className={`rounded px-1.5 py-0.5 text-xs font-medium ${
+                                                                    STATUS_COLORS[o.status] ??
+                                                                    'bg-gray-100 text-gray-600'
+                                                                }`}
+                                                            >
+                                                                {isReady ? 'Ready — bring to table' : o.status}
+                                                            </span>
+                                                        </div>
+                                                        <div className="mt-0.5 text-xs text-gray-400">
+                                                            {o.type.replace('_', ' ')}
+                                                            {o.table && ` · ${o.table.label}`}
+                                                            {' · '}
+                                                            {readyCount}/{o.items.length} item{o.items.length !== 1 ? 's' : ''} ready
+                                                        </div>
                                                     </div>
-                                                    <div className="mt-0.5 text-xs text-gray-400">
-                                                        {o.type.replace('_', ' ')}
-                                                        {o.table && ` · ${o.table.label}`}
-                                                        {' · '}
-                                                        {o.items.length} item
-                                                        {o.items.length !== 1 ? 's' : ''}
+                                                    <div className="shrink-0 text-right">
+                                                        <div className="text-sm font-semibold text-gray-800">
+                                                            {rwf(o.total)}
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <div className="shrink-0 text-right">
-                                                    <div className="text-sm font-semibold text-gray-800">
-                                                        {rwf(o.total)}
-                                                    </div>
+                                                <div className="mt-2 flex gap-2">
+                                                    <Link
+                                                        href={route('payments.show', o.id)}
+                                                        className="flex-1 rounded bg-green-600 py-1 text-center text-xs font-medium text-white hover:bg-green-700"
+                                                    >
+                                                        Pay
+                                                    </Link>
+                                                    <button
+                                                        onClick={() => cancelOrder(o.id)}
+                                                        className="rounded border border-gray-200 px-3 py-1 text-xs text-gray-500 hover:bg-gray-50"
+                                                    >
+                                                        Cancel
+                                                    </button>
                                                 </div>
                                             </div>
-                                            <div className="mt-2 flex gap-2">
-                                                <Link
-                                                    href={route('payments.show', o.id)}
-                                                    className="flex-1 rounded bg-green-600 py-1 text-center text-xs font-medium text-white hover:bg-green-700"
-                                                >
-                                                    Pay
-                                                </Link>
-                                                <button
-                                                    onClick={() => cancelOrder(o.id)}
-                                                    className="rounded border border-gray-200 px-3 py-1 text-xs text-gray-500 hover:bg-gray-50"
-                                                >
-                                                    Cancel
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             )}
                         </div>

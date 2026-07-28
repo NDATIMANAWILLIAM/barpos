@@ -167,10 +167,16 @@ export default function Index({ period, revenue, orders, byCategory, foodTotal, 
             header={
                 <div className="flex items-center justify-between">
                     <h2 className="text-xl font-semibold text-gray-800">Reports & Analytics</h2>
-                    <button onClick={() => window.print()}
-                        className="flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-50 print:hidden">
-                        🖨️ Print Report
-                    </button>
+                    <div className="flex items-center gap-2 print:hidden">
+                        <a href={route('reports.export', { period })}
+                            className="flex items-center gap-2 rounded-xl bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700">
+                            Download Excel (CSV)
+                        </a>
+                        <button onClick={() => window.print()}
+                            className="flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-50">
+                            Print Report
+                        </button>
+                    </div>
                 </div>
             }
         >

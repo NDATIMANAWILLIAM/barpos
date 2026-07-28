@@ -24,6 +24,9 @@ class OrderController extends Controller
             'tables'     => DiningTable::orderBy('label')->get(),
             'openOrders' => Order::with(['items', 'table'])
                 ->whereNotIn('status', ['paid', 'cancelled'])
+                // Ready orders need to be picked up and served — surface
+                // them above orders still being prepared, regardless of age.
+                ->orderByRaw("status = 'ready' desc")
                 ->latest()
                 ->take(20)
                 ->get(),

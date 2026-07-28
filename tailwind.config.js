@@ -17,23 +17,24 @@ export default {
                 serif: ['"Source Serif 4"', ...defaultTheme.fontFamily.serif],
             },
             colors: {
-                // Warm near-black chrome (replaces default slate for a less
-                // "generic SaaS dashboard" feel — sidebars, headers, dark cards).
+                // Deep navy chrome — matches the Isaro Rubengera brand mark's
+                // dark backdrop — for sidebars, headers, and dark cards.
                 ink: {
-                    50:  '#F6F4F1',
-                    100: '#EDE9E3',
-                    200: '#D8D0C4',
-                    300: '#B7A991',
-                    400: '#8F7C61',
-                    500: '#6B5A45',
-                    600: '#4E4133',
-                    700: '#3A2F25',
-                    800: '#291F18',
-                    900: '#1C1510',
-                    950: '#120D09',
+                    50:  '#F6F8FB',
+                    100: '#EBEFF6',
+                    200: '#D2DAE8',
+                    300: '#A9B8D2',
+                    400: '#7A8FB4',
+                    500: '#576D93',
+                    600: '#3F5378',
+                    700: '#2C3D5C',
+                    800: '#1B2740',
+                    900: '#111A2E',
+                    950: '#0A101F',
                 },
-                // Copper/bronze brand accent — deliberately not the default
-                // Tailwind amber/indigo that every generated template reaches for.
+                // Copper/bronze brand accent, taken from the logo's copper
+                // arc and lettering — deliberately not the default Tailwind
+                // amber/indigo that every generated template reaches for.
                 brass: {
                     50:  '#FBF3EA',
                     100: '#F4E1C9',
