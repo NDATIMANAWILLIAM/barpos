@@ -361,7 +361,7 @@ function DesktopCart({ cart, setCart, itemMap, table }) {
 }
 
 // ── Main Page ────────────────────────────────────────────────────────────────
-export default function Menu({ categories, table, business }) {
+export default function Menu({ categories, table, business, contact }) {
     const [kindFilter, setKindFilter] = useState('all');
     const [activeSlug, setActiveSlug] = useState(null);
     const [cart, setCart]             = useState({});
@@ -463,6 +463,16 @@ export default function Menu({ categories, table, business }) {
                                 <span className="text-xs font-bold text-brass-300">Table {table.label}</span>
                             </div>
                         )}
+                        {contact?.phone && (
+                            <a href={`tel:${contact.phone}`}
+                                className="mt-3 flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 hover:bg-white/15 transition">
+                                <Icon.phone className="h-4 w-4 shrink-0 text-brass-300" />
+                                <div className="min-w-0">
+                                    <p className="text-[10px] uppercase tracking-wide text-ink-300">Call us now</p>
+                                    <p className="truncate text-sm font-bold">{contact.name ? `${contact.name} · ` : ''}{contact.phone}</p>
+                                </div>
+                            </a>
+                        )}
                     </div>
 
                     {/* Search box */}
@@ -537,6 +547,16 @@ export default function Menu({ categories, table, business }) {
                                             <p className="text-lg font-extrabold">{table.label}</p>
                                         </div>
                                     </div>
+                                )}
+                                {contact?.phone && (
+                                    <a href={`tel:${contact.phone}`}
+                                        className="mt-3 flex items-center gap-2 rounded-2xl bg-brass-500 px-3.5 py-2.5 shadow-lg active:scale-95 transition">
+                                        <Icon.phone className="h-4 w-4 shrink-0 text-white" />
+                                        <div className="min-w-0">
+                                            <p className="text-[10px] uppercase tracking-wide text-white/80">Call us now</p>
+                                            <p className="truncate text-sm font-bold text-white">{contact.name ? `${contact.name} · ` : ''}{contact.phone}</p>
+                                        </div>
+                                    </a>
                                 )}
                             </div>
                         </div>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\BusinessProfile;
 use App\Models\DiningTable;
 use App\Models\MenuCategory;
+use App\Models\Setting;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 
@@ -56,6 +57,12 @@ class PublicMenuController extends Controller
                 'phone'   => $business->phone,
                 'address' => $business->address,
             ] : null,
+            // Whoever's on duty right now (set from the staff dashboard) —
+            // falls back to the fixed business phone if nothing is set.
+            'contact'    => [
+                'name'  => Setting::get('on_duty_contact_name') ?: null,
+                'phone' => Setting::get('on_duty_contact_phone') ?: $business?->phone,
+            ],
         ]);
     }
 }
