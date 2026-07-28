@@ -37,6 +37,7 @@ class CustomerOrderController extends Controller
             $order = Order::create([
                 'order_number' => now()->format('Ymd') . '-' . str_pad($seq, 3, '0', STR_PAD_LEFT),
                 'type'         => 'dine_in',
+                'source'       => 'qr_scan',
                 'table_id'     => $table?->id,
                 'waiter_id'    => null,   // self-order — no waiter assigned yet
                 'status'       => 'open',

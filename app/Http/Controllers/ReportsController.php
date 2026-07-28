@@ -72,6 +72,13 @@ class ReportsController extends Controller
             }
             fputcsv($out, []);
 
+            fputcsv($out, ['ORDER SOURCE']);
+            fputcsv($out, ['Source', 'Orders', 'Revenue (RWF)']);
+            foreach ($data['bySource'] as $s) {
+                fputcsv($out, [$s['source'], $s['count'], $s['revenue']]);
+            }
+            fputcsv($out, []);
+
             fputcsv($out, ['PAYMENT METHODS']);
             fputcsv($out, ['Method', 'Transactions', 'Total (RWF)']);
             foreach ($data['byMethod'] as $m) {
@@ -159,6 +166,20 @@ class ReportsController extends Controller
         // Food vs Drinks totals
         $foodTotal  = $byCategory->where('kind', 'food')->sum('revenue');
         $drinkTotal = $byCategory->where('kind', 'drink')->sum('revenue');
+
+        // ── Order source breakdown ───────────────────────────────────────────
+        // Where orders come from — QR self-order, staff-recorded phone call,
+        // or staff-entered walk-in — so management can see the real split.
+        $bySource = Order::whereBetween('created_at', [$start, $end])
+            ->select('source', DB::raw('COUNT(*) as count'), DB::raw("SUM(CASE WHEN status = 'paid' THEN total ELSE 0 END) as revenue"))
+            ->groupBy('source')
+            ->orderByDesc('count')
+            ->get()
+            ->map(fn ($s) => [
+                'source'  => $s->source,
+                'count'   => (int) $s->count,
+                'revenue' => (int) $s->revenue,
+            ]);
 
         // ── Payment method breakdown ─────────────────────────────────────────
         $byMethod = Payment::where('status', 'confirmed')
@@ -293,7 +314,7 @@ class ReportsController extends Controller
 
         return compact(
             'revenue', 'orders', 'byCategory', 'foodTotal', 'drinkTotal',
-            'byMethod', 'topItems', 'trend', 'workerPerf', 'activity'
+            'byMethod', 'bySource', 'topItems', 'trend', 'workerPerf', 'activity'
         );
     }
 }

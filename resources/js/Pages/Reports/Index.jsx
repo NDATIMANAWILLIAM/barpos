@@ -155,8 +155,11 @@ function FoodDrinkSplit({ foodTotal, drinkTotal }) {
     );
 }
 
-export default function Index({ period, revenue, orders, byCategory, foodTotal, drinkTotal, byMethod, topItems, trend, workerPerf, activity }) {
+const SOURCE_LABEL = { qr_scan: 'QR self-order', phone_call: 'Phone call', walk_in: 'Walk-in' };
+
+export default function Index({ period, revenue, orders, byCategory, foodTotal, drinkTotal, byMethod, bySource, topItems, trend, workerPerf, activity }) {
     const maxMethod  = Math.max(...(byMethod?.map(m => m.total) ?? []), 1);
+    const maxSource  = Math.max(...(bySource?.map(s => s.count) ?? []), 1);
     const maxItemQty = Math.max(...(topItems?.map(i => i.qty) ?? []), 1);
     const today = new Date().toLocaleDateString('en-RW', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
@@ -259,6 +262,31 @@ export default function Index({ period, revenue, orders, byCategory, foodTotal, 
                         )}
                     </div>
                 </div>
+
+                {/* ── Order source ── */}
+                <section>
+                    <h3 className="text-xs font-bold uppercase tracking-wide text-gray-400 mb-3">
+                        Where Orders Come From
+                    </h3>
+                    <div className="rounded-2xl bg-white ring-1 ring-gray-100 p-4">
+                        {(!bySource || bySource.length === 0) ? (
+                            <p className="text-sm text-gray-400 text-center py-4">No orders yet</p>
+                        ) : (
+                            <div className="space-y-3">
+                                {bySource.map((s) => (
+                                    <div key={s.source}>
+                                        <div className="flex justify-between text-sm mb-1">
+                                            <span className="font-medium text-gray-700">{SOURCE_LABEL[s.source] ?? s.source}</span>
+                                            <span className="font-bold text-gray-900">{s.count} order{s.count !== 1 ? 's' : ''}</span>
+                                        </div>
+                                        <MiniBar value={s.count} max={maxSource} color="bg-purple-500" />
+                                        <p className="text-xs text-gray-400 mt-0.5">{rwf(s.revenue)} paid revenue</p>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </section>
 
                 {/* ── Category breakdown ── */}
                 {byCategory.length > 0 && (

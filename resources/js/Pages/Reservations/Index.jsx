@@ -13,6 +13,13 @@ const STATUS_STYLES = {
     delivered: 'bg-teal-100 text-teal-700',
 };
 
+const SOURCE_LABEL = { online: 'Online', phone_call: 'Phone call', walk_in: 'Walk-in' };
+const SOURCE_STYLES = {
+    online:     'bg-cyan-100 text-cyan-700',
+    phone_call: 'bg-amber-100 text-amber-700',
+    walk_in:    'bg-gray-100 text-gray-600',
+};
+
 function statusLabel(status, kind) {
     if (status === 'seated')    return kind === 'delivery' ? '🚚 Out for Delivery' : '🪑 Seated';
     if (status === 'delivered') return '✓ Delivered';
@@ -113,6 +120,12 @@ function ReservationCard({ reservation: r, onDelete, tables }) {
                         <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${STATUS_STYLES[r.status] ?? 'bg-gray-100 text-gray-500'}`}>
                             {statusLabel(r.status, r.kind)}
                         </span>
+                        {/* source badge */}
+                        {r.source && (
+                            <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${SOURCE_STYLES[r.source] ?? 'bg-gray-100 text-gray-500'}`}>
+                                {SOURCE_LABEL[r.source] ?? r.source}
+                            </span>
+                        )}
                         {r.status === 'pending' && (
                             <span className={`text-xs ${urgencyColor(r.created_at)}`}>
                                 ⏱ Received {elapsed(r.created_at)}
@@ -373,6 +386,7 @@ export default function Index({ reservations, tables }) {
     const form = useForm({
         customer_name: '',
         phone:         '',
+        source:        'phone_call',
         party_size:    2,
         scheduled_at:  '',
         table_id:      '',
@@ -477,6 +491,19 @@ export default function Index({ reservations, tables }) {
                                     value={form.data.scheduled_at}
                                     onChange={e => form.setData('scheduled_at', e.target.value)} />
                                 {form.errors.scheduled_at && <p className="mt-1 text-xs text-red-500">{form.errors.scheduled_at}</p>}
+                            </div>
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-600 mb-1">How is this coming in? *</label>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <button type="button" onClick={() => form.setData('source', 'phone_call')}
+                                        className={`rounded-xl border py-2 text-xs font-bold transition ${form.data.source === 'phone_call' ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-gray-200 text-gray-500'}`}>
+                                        Phone call
+                                    </button>
+                                    <button type="button" onClick={() => form.setData('source', 'walk_in')}
+                                        className={`rounded-xl border py-2 text-xs font-bold transition ${form.data.source === 'walk_in' ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-gray-200 text-gray-500'}`}>
+                                        Walk-in / in person
+                                    </button>
+                                </div>
                             </div>
                             <div>
                                 <label className="block text-xs font-semibold text-gray-600 mb-1">Party Size *</label>

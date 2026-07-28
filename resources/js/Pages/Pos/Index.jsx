@@ -12,11 +12,32 @@ const STATUS_COLORS = {
     cancelled: 'bg-red-100 text-red-600',
 };
 
+const SOURCE_LABEL = {
+    qr_scan:    'QR self-order',
+    phone_call: 'Phone call',
+    walk_in:    'Walk-in',
+};
+const SOURCE_COLORS = {
+    qr_scan:    'bg-purple-100 text-purple-700',
+    phone_call: 'bg-amber-100 text-amber-700',
+    walk_in:    'bg-gray-100 text-gray-600',
+};
+
+function SourceBadge({ source }) {
+    if (!source) return null;
+    return (
+        <span className={`rounded px-1.5 py-0.5 text-xs font-medium ${SOURCE_COLORS[source] ?? 'bg-gray-100 text-gray-600'}`}>
+            {SOURCE_LABEL[source] ?? source}
+        </span>
+    );
+}
+
 const fmtTime = (iso) => new Date(iso).toLocaleTimeString('en-RW', { hour: '2-digit', minute: '2-digit' });
 
 export default function Index({ categories, menuItems, tables, openOrders, todaysOrders }) {
     const [cart, setCart]         = useState([]);
     const [type, setType]         = useState('dine_in');
+    const [source, setSource]     = useState('walk_in');
     const [tableId, setTableId]   = useState('');
     const [notes, setNotes]       = useState('');
     const [activeCat, setActiveCat] = useState('all');
@@ -109,6 +130,7 @@ export default function Index({ categories, menuItems, tables, openOrders, today
             route('pos.orders.store'),
             {
                 type,
+                source,
                 table_id: tableId || null,
                 notes: notes || null,
                 items: cart.map((c) => c.menu_item_id
@@ -263,6 +285,19 @@ export default function Index({ categories, menuItems, tables, openOrders, today
                                             </option>
                                         ))}
                                     </select>
+                                </div>
+                                <div className="col-span-2">
+                                    <label className="block text-xs text-gray-500">How is this order coming in?</label>
+                                    <div className="mt-1 grid grid-cols-2 gap-2">
+                                        <button type="button" onClick={() => setSource('walk_in')}
+                                            className={`rounded border py-1.5 text-xs font-bold transition ${source === 'walk_in' ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-gray-200 text-gray-500'}`}>
+                                            Walk-in / At counter
+                                        </button>
+                                        <button type="button" onClick={() => setSource('phone_call')}
+                                            className={`rounded border py-1.5 text-xs font-bold transition ${source === 'phone_call' ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-gray-200 text-gray-500'}`}>
+                                            Phone call
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 
@@ -459,6 +494,7 @@ export default function Index({ categories, menuItems, tables, openOrders, today
                                                             <span className={`rounded px-1.5 py-0.5 text-xs font-medium ${STATUS_COLORS[o.status] ?? 'bg-gray-100 text-gray-600'}`}>
                                                                 {o.status}
                                                             </span>
+                                                            <SourceBadge source={o.source} />
                                                         </div>
                                                         <div className="mt-0.5 text-xs text-gray-400">
                                                             {fmtTime(o.created_at)}
@@ -515,6 +551,7 @@ export default function Index({ categories, menuItems, tables, openOrders, today
                                                             >
                                                                 {isReady ? 'Ready — bring to table' : o.status}
                                                             </span>
+                                                            <SourceBadge source={o.source} />
                                                         </div>
                                                         <div className="mt-0.5 text-xs text-gray-400">
                                                             {o.type.replace('_', ' ')}

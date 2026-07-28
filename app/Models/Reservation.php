@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Reservation extends Model
 {
     protected $fillable = [
-        'kind', 'customer_id', 'customer_name', 'phone',
+        'kind', 'source', 'customer_id', 'customer_name', 'phone',
         'table_id', 'party_size', 'delivery_address',
         'room_id', 'room_type_id', 'check_in', 'check_out',
         'scheduled_at', 'status', 'notes', 'created_by', 'confirmed_by',

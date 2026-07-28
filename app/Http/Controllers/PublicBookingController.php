@@ -17,7 +17,7 @@ class PublicBookingController extends Controller
                 'phone'   => config('app.business_phone', ''),
                 'address' => config('app.business_address', ''),
             ],
-            'tables' => DiningTable::where('status', 'available')
+            'tables' => DiningTable::where('status', 'free')
                 ->orderBy('zone')->orderBy('label')
                 ->get(['id', 'label', 'zone', 'capacity']),
             'minDate' => now()->format('Y-m-d\TH:i'),
@@ -48,6 +48,7 @@ class PublicBookingController extends Controller
 
         Reservation::create([
             'kind'             => $data['kind'],
+            'source'           => 'online',
             'customer_name'    => $data['customer_name'],
             'phone'            => $data['phone'],
             'party_size'       => $data['party_size'],

@@ -89,6 +89,7 @@ class OperationsController extends Controller
                 'id'            => $o->id,
                 'order_number'  => $o->order_number,
                 'type'          => $o->type,
+                'source'        => $o->source,
                 'table'         => $o->table?->label,
                 'waiter'        => $o->waiter?->name ?? 'Client (self-order)',
                 'status'        => $o->status,

@@ -473,6 +473,11 @@ export default function Menu({ categories, table, business, contact }) {
                                 </div>
                             </a>
                         )}
+                        <a href="/book"
+                            className="mt-2 flex items-center gap-2 rounded-xl bg-brass-500 px-3 py-2 hover:bg-brass-400 transition">
+                            <Icon.calendar className="h-4 w-4 shrink-0 text-white" />
+                            <span className="text-sm font-bold text-white">Book a Table</span>
+                        </a>
                     </div>
 
                     {/* Search box */}
@@ -548,16 +553,23 @@ export default function Menu({ categories, table, business, contact }) {
                                         </div>
                                     </div>
                                 )}
-                                {contact?.phone && (
-                                    <a href={`tel:${contact.phone}`}
-                                        className="mt-3 flex items-center gap-2 rounded-2xl bg-brass-500 px-3.5 py-2.5 shadow-lg active:scale-95 transition">
-                                        <Icon.phone className="h-4 w-4 shrink-0 text-white" />
-                                        <div className="min-w-0">
-                                            <p className="text-[10px] uppercase tracking-wide text-white/80">Call us now</p>
-                                            <p className="truncate text-sm font-bold text-white">{contact.name ? `${contact.name} · ` : ''}{contact.phone}</p>
-                                        </div>
+                                <div className="mt-3 flex gap-2">
+                                    {contact?.phone && (
+                                        <a href={`tel:${contact.phone}`}
+                                            className="flex flex-1 items-center gap-2 rounded-2xl bg-brass-500 px-3.5 py-2.5 shadow-lg active:scale-95 transition">
+                                            <Icon.phone className="h-4 w-4 shrink-0 text-white" />
+                                            <div className="min-w-0">
+                                                <p className="text-[10px] uppercase tracking-wide text-white/80">Call us now</p>
+                                                <p className="truncate text-sm font-bold text-white">{contact.phone}</p>
+                                            </div>
+                                        </a>
+                                    )}
+                                    <a href="/book"
+                                        className="flex items-center gap-2 rounded-2xl bg-white/10 px-3.5 py-2.5 ring-1 ring-white/20 active:scale-95 transition">
+                                        <Icon.calendar className="h-4 w-4 shrink-0 text-brass-300" />
+                                        <span className="text-sm font-bold">Book</span>
                                     </a>
-                                )}
+                                </div>
                             </div>
                         </div>
 

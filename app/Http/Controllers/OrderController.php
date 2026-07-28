@@ -44,6 +44,7 @@ class OrderController extends Controller
     {
         $data = $request->validate([
             'type'                   => 'required|in:dine_in,takeaway,room_service',
+            'source'                 => 'required|in:phone_call,walk_in',
             'table_id'               => 'nullable|exists:dining_tables,id',
             'notes'                  => 'nullable|string|max:255',
             'items'                  => 'required|array|min:1',
@@ -62,6 +63,7 @@ class OrderController extends Controller
             $order = Order::create([
                 'order_number' => now()->format('Ymd') . '-' . str_pad($seq, 3, '0', STR_PAD_LEFT),
                 'type'         => $data['type'],
+                'source'       => $data['source'],
                 'table_id'     => $data['table_id'] ?? null,
                 'waiter_id'    => $request->user()->id,
                 'status'       => 'open',

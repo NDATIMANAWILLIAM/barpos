@@ -40,6 +40,7 @@ class ReservationController extends Controller
                 return [
                     'id'               => $r->id,
                     'kind'             => $r->kind,
+                    'source'           => $r->source,
                     'customer_name'    => $r->customer_name,
                     'phone'            => $r->phone,
                     'party_size'       => $r->party_size,
@@ -66,6 +67,7 @@ class ReservationController extends Controller
     {
         $data = $request->validate([
             'kind'             => 'nullable|in:table,delivery',
+            'source'           => 'required|in:phone_call,walk_in',
             'customer_name'    => 'required|string|max:120',
             'phone'            => 'required|string|max:30',
             'party_size'       => 'required|integer|min:1|max:50',
