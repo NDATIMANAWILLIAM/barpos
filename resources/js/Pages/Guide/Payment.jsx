@@ -50,69 +50,57 @@ function InfoBox({ icon, title, children, color = 'blue' }) {
 /* ══════════════════════════════════════════════════════════════════
    TAB 1 — SETUP & DEPLOYMENT
 ══════════════════════════════════════════════════════════════════ */
-function TabSetup() {
+function TabSetup({ appUrl }) {
     return (
         <div className="space-y-6">
 
-            {/* Super Admin */}
+            {/* Live system */}
             <div className="rounded-2xl bg-amber-50 ring-2 ring-amber-400 p-5">
-                <h3 className="text-base font-extrabold text-amber-900 mb-1">👑 Step 1 — Create the Owner (Super Admin) Account</h3>
+                <h3 className="text-base font-extrabold text-amber-900 mb-1">🌐 The system is live on the internet</h3>
                 <p className="text-sm text-amber-800 mb-4">
-                    The first time you set up Isaro Rubengera, you need to create the owner account that controls everything.
-                    Open a terminal/command prompt inside the barpos folder and run:
+                    Isaro Rubengera runs on a hosted server, not on any one computer — every device (phone, tablet, computer)
+                    reaches it the same way, over the internet, at:
                 </p>
-                <div className="rounded-xl bg-gray-900 px-4 py-3 font-mono text-sm text-green-400 mb-3">
-                    php artisan barpos:make-admin
+                <div className="rounded-xl bg-gray-900 px-4 py-3 font-mono text-sm text-green-400 mb-3 break-all">
+                    {appUrl}
                 </div>
                 <p className="text-xs text-amber-700">
-                    The system will ask you for name, email, phone, and password.
-                    After that, you can log in at <span className="font-mono font-bold">/login</span> with those details.
-                    The owner account can do everything — add staff, menu, tables, payments.
+                    No local network setup, no IP addresses, no editing config files. Staff just open that link (or bookmark <span className="font-mono font-bold">/login</span>) from any device with internet access.
                 </p>
             </div>
 
-            {/* Local Network Deployment */}
-            <div className="rounded-2xl bg-white ring-1 ring-gray-200 p-5 space-y-5">
-                <div>
-                    <h3 className="text-base font-extrabold text-gray-900 mb-1">
-                        🌐 Step 2 — Make it work on all devices in your bar (Local Network)
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                        By default the system only works on the computer it's installed on.
-                        To make customers scan QR codes from their phones and to use the system on tablets/phones at
-                        your counter, follow these steps. All devices must be on the same WiFi.
-                    </p>
+            {/* Starter accounts */}
+            <div className="rounded-2xl bg-white ring-1 ring-gray-200 p-5">
+                <h3 className="text-base font-extrabold text-gray-900 mb-1">👤 Step 1 — Log in with a starter account</h3>
+                <p className="text-sm text-gray-600 mb-4">
+                    A default account per role already exists so you can log in immediately. <strong>Change these passwords</strong> from the Staff page before real use.
+                </p>
+                <div className="rounded-xl bg-gray-50 p-3 space-y-1.5 text-xs font-mono">
+                    <p><span className="text-gray-400">Owner:</span> admin@barpos.rw / password</p>
+                    <p><span className="text-gray-400">Manager:</span> manager@barpos.rw / password</p>
+                    <p><span className="text-gray-400">Cashier:</span> cashier@barpos.rw / password</p>
+                    <p><span className="text-gray-400">Waiter:</span> waiter@barpos.rw / password</p>
+                    <p><span className="text-gray-400">Kitchen:</span> kitchen@barpos.rw / password</p>
                 </div>
+            </div>
 
-                <div className="space-y-4">
-                    <Step n="1" text={"Find your computer's local IP address. Open Command Prompt and type: ipconfig — look for IPv4 Address under your WiFi adapter. It looks like 192.168.1.100 or 192.168.0.50."} />
-
-                    <Step n="2" text="Open the file called .env in the barpos folder with Notepad. Find the line APP_URL=http://localhost:8000 and change it to use your IP, for example: APP_URL=http://192.168.1.100:8000" />
-
-                    <div>
-                        <Step n="3" text="Now start the server with this command so all devices on the WiFi can connect:" />
-                        <div className="ml-10 mt-2 rounded-xl bg-gray-900 px-4 py-3 font-mono text-sm text-green-400">
-                            php artisan serve --host=0.0.0.0 --port=8000
-                        </div>
-                    </div>
-
-                    <Step n="4" text="Go to the Tables page in the admin panel and click Regenerate QR on each table. This updates the QR codes to point to your new IP address." />
-
-                    <Step n="5" text="Print the QR codes from the Tables page and stick them on the physical tables. Now customers can scan with their phone camera and reach your menu." />
+            {/* Business details */}
+            <div className="rounded-2xl bg-white ring-1 ring-gray-200 p-5">
+                <h3 className="text-base font-extrabold text-gray-900 mb-3">🏢 Step 2 — Set your business name, phone, and payment numbers</h3>
+                <div className="space-y-3">
+                    <Step n="1" text="Log in as Owner or Manager, then click Business Settings in the left sidebar." />
+                    <Step n="2" text="Fill in your real business name, phone, address, and tax details — this is what customers see on the menu, receipts, and booking page." />
+                    <Step n="3" text="Below that, enable and fill in your MoMo/Airtel/bank numbers so payment collection works correctly." />
                 </div>
-
-                <InfoBox icon="💡" title="Important: Every time you restart the server, use the same command (--host=0.0.0.0). If your computer's IP changes, repeat from Step 2." color="blue">
-                    <p className="text-sm mt-1">To keep the same IP: set a static IP on your router for this computer, or use a router with DHCP reservation.</p>
-                </InfoBox>
             </div>
 
             {/* Adding more staff */}
             <div className="rounded-2xl bg-white ring-1 ring-gray-200 p-5">
-                <h3 className="text-base font-extrabold text-gray-900 mb-3">👤 Step 3 — Add Staff (Managers, Waiters, Cashiers)</h3>
+                <h3 className="text-base font-extrabold text-gray-900 mb-3">👥 Step 3 — Add Staff (Managers, Waiters, Cashiers)</h3>
                 <div className="space-y-3">
                     <Step n="1" text="Log in as Owner, then click Staff in the left sidebar." />
                     <Step n="2" text="Click Add Staff Member and fill in their name, email, role, and a temporary password they can change later." />
-                    <Step n="3" text="Staff log in at your-ip:8000/login using that email and password." />
+                    <Step n="3" text="Staff log in at the same link above using that email and password." />
                 </div>
                 <div className="mt-4 rounded-xl bg-gray-50 p-3">
                     <p className="text-xs font-bold text-gray-500 mb-2">ROLES AT A GLANCE</p>
@@ -121,7 +109,7 @@ function TabSetup() {
                             ['👑 Owner',       'Full access — everything'],
                             ['🎯 Manager',     'Full access except deleting owner accounts'],
                             ['💰 Cashier',     'POS, payments, receipts'],
-                            ['🍽 Waiter',      'POS, take orders, see reservations'],
+                            ['🍽 Waiter',      'POS, take orders, process payments, manage reservations'],
                             ['👨‍🍳 Kitchen',    'See and update order status (display screen)'],
                             ['📦 Storekeeper', 'Inventory only'],
                         ].map(([role, desc]) => (
@@ -142,7 +130,7 @@ function TabSetup() {
                     Their booking appears in the Reservations page as <strong>Pending</strong> until you confirm it.
                 </p>
                 <div className="rounded-xl bg-white border border-indigo-200 px-4 py-3 font-mono text-sm text-indigo-700 mb-3 break-all">
-                    your-ip:8000/book
+                    {appUrl}/book
                 </div>
                 <p className="text-xs text-indigo-600">
                     Share via WhatsApp, print on menus, or add to your social media. Clients pick date, time, party size, and any special requests.
@@ -239,8 +227,8 @@ function TabQR() {
                 </div>
             </div>
 
-            <InfoBox icon="⚠️" title="QR codes only work if the system is running" color="amber">
-                <p className="text-sm">The server must be started with <span className="font-mono font-bold">php artisan serve --host=0.0.0.0 --port=8000</span> every time you use the system. QR codes also stop working if your computer's IP address changes — see the Setup tab.</p>
+            <InfoBox icon="✅" title="QR codes work anywhere, any time" color="green">
+                <p className="text-sm">Since the system is hosted online (not on a local computer), the QR codes work as long as the customer's phone has internet access — no server to start, no IP address to keep track of.</p>
             </InfoBox>
 
         </div>
@@ -476,8 +464,8 @@ function TabRoles() {
             role: 'Waiter', emoji: '🍽️', color: 'bg-purple-600', label: 'Waiter',
             can: [
                 'Take orders via POS',
+                'Process payments and print receipts',
                 'See and manage reservations',
-                'Cannot process payments',
                 'Cannot access menu/table management',
             ],
         },
@@ -536,7 +524,7 @@ const TABS = [
     { key: 'roles',    emoji: '👥', label: 'Staff Roles',   component: TabRoles },
 ];
 
-export default function Payment() {
+export default function Payment({ appUrl }) {
     const [tab, setTab] = useState('setup');
     const Active = TABS.find(t => t.key === tab)?.component ?? TabSetup;
 
@@ -569,7 +557,7 @@ export default function Payment() {
 
                 {/* Content */}
                 <div className="mx-auto max-w-4xl px-4 pt-6">
-                    <Active />
+                    <Active appUrl={appUrl} />
                 </div>
 
             </div>

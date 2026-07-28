@@ -25,7 +25,9 @@ Route::get('/m/{token}', [PublicMenuController::class, 'show'])->name('public.me
 Route::post('/order', [CustomerOrderController::class, 'store'])->name('customer.order');
 
 // Payment usage guide (printable, no auth)
-Route::get('/guide', fn () => Inertia::render('Guide/Payment'))->name('guide');
+Route::get('/guide', fn () => Inertia::render('Guide/Payment', [
+    'appUrl' => config('app.url'),
+]))->name('guide');
 
 // Public table booking (no auth — clients book themselves)
 Route::get('/book',  [PublicBookingController::class, 'show'])->name('public.book');
