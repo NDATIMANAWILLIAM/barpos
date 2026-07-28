@@ -14,8 +14,8 @@ class BusinessSeeder extends Seeder
         BusinessProfile::firstOrCreate(
             ['id' => 1],
             [
-                'name'        => 'My Bar & Restaurant',
-                'type'        => 'bar',
+                'name'        => 'Isaro Rubengera Bar & Lodge',
+                'type'        => 'lodge',
                 'phone'       => '078 000 0000',
                 'address'     => 'KG 123 St, Kigali',
                 'tin'         => '',

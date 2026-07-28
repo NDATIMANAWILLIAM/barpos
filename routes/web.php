@@ -176,6 +176,12 @@ Route::middleware(['auth', 'role'])->group(function () {
         Route::get('/reports', [ReportsController::class, 'index'])->name('reports.index');
         Route::get('/reports/period', [ReportsController::class, 'index'])->name('reports.period');
         Route::get('/reports/export', [ReportsController::class, 'export'])->name('reports.export');
+
+        // Business settings — name, contact info, payment method numbers
+        // (owner, manager only)
+        Route::get('/settings/business',          [\App\Http\Controllers\BusinessSettingsController::class, 'edit'])->name('settings.business.edit');
+        Route::patch('/settings/business',         [\App\Http\Controllers\BusinessSettingsController::class, 'update'])->name('settings.business.update');
+        Route::patch('/settings/business/payment', [\App\Http\Controllers\BusinessSettingsController::class, 'updatePayment'])->name('settings.business.payment');
     });
 });
 

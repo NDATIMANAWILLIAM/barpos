@@ -19,6 +19,7 @@ const I = {
     check:    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>,
     shield:   <svg viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3"><path fillRule="evenodd" d="M12.516 2.17a.75.75 0 00-1.032 0 11.209 11.209 0 01-7.877 3.08.75.75 0 00-.722.515A12.74 12.74 0 002.25 9.75c0 5.942 4.064 10.933 9.563 12.348a.749.749 0 00.374 0c5.499-1.415 9.563-6.406 9.563-12.348 0-1.39-.223-2.73-.635-3.985a.75.75 0 00-.722-.516l-.143.001c-2.996 0-5.717-1.17-7.704-3.08z" clipRule="evenodd"/></svg>,
     ops:      <svg viewBox="0 0 24 24" fill="currentColor" className="w-[18px] h-[18px]"><path d="M3 13.5a.75.75 0 01.75-.75h16.5a.75.75 0 010 1.5H3.75A.75.75 0 013 13.5zM3 8.25a.75.75 0 01.75-.75h16.5a.75.75 0 010 1.5H3.75A.75.75 0 013 8.25zM3 18.75a.75.75 0 01.75-.75h16.5a.75.75 0 010 1.5H3.75a.75.75 0 01-.75-.75z"/><circle cx="19" cy="5" r="4" fill="#ef4444"/><text x="19" y="7" fontSize="5" fill="white" textAnchor="middle">!</text></svg>,
+    settings: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-[18px] h-[18px]"><path strokeLinecap="round" d="M4 6h8M16 6h4M4 12h1M9 12h11M4 18h9M17 18h3"/><circle cx="12" cy="6" r="2"/><circle cx="5.5" cy="12" r="2"/><circle cx="13" cy="18" r="2"/></svg>,
     bell:     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 8a6 6 0 1112 0c0 4 1.5 5.5 2 6.5H4c.5-1 2-2.5 2-6.5z"/><path strokeLinecap="round" d="M10 19a2 2 0 004 0"/></svg>,
 };
 
@@ -164,7 +165,7 @@ function Sidebar({ user, role, meta, navItems, onClose }) {
     const has = (roles) => roles.includes(role);
 
     const ops   = navItems.filter(n => ['dashboard', 'pos.*', 'kitchen.*', 'reservations.*'].includes(n.match));
-    const mgmt  = navItems.filter(n => ['menu.*', 'tables.*', 'staff.*', 'reports.*'].includes(n.match));
+    const mgmt  = navItems.filter(n => ['menu.*', 'tables.*', 'staff.*', 'reports.*', 'settings.*'].includes(n.match));
     const more  = navItems.filter(n => ['guide'].includes(n.match));
 
     return (
@@ -263,6 +264,7 @@ export default function AuthenticatedLayout({ header, children }) {
         { href: route('tables.index'),       icon: I.table, label: 'Tables & QR',  match: 'tables.*',       show: has(ADMIN),     group: 'mgmt' },
         { href: route('staff.index'),        icon: I.users, label: 'Staff',        match: 'staff.*',        show: has(ADMIN),     group: 'mgmt' },
         { href: route('reports.index'),      icon: I.chart, label: 'Reports',      match: 'reports.*',      show: has(ADMIN),     group: 'mgmt' },
+        { href: route('settings.business.edit'), icon: I.settings, label: 'Business Settings', match: 'settings.*', show: has(ADMIN), group: 'mgmt' },
         { href: route('guide'),              icon: I.book,  label: 'Staff Guide',  match: 'guide',          show: true,           group: 'more' },
     ].filter(i => i.show);
 
