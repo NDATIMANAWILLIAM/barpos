@@ -15,7 +15,7 @@ class MakeAdmin extends Command
     public function handle(): int
     {
         $this->info('');
-        $this->line('  <fg=yellow>BarPOS — Super Manager Setup</>');
+        $this->line('  <fg=yellow>Isaro Rubengera — Super Manager Setup</>');
         $this->line('  ──────────────────────────────');
         $this->info('');
 

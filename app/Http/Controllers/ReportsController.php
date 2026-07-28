@@ -42,7 +42,7 @@ class ReportsController extends Controller
             $out = fopen('php://output', 'w');
             fwrite($out, "\xEF\xBB\xBF"); // UTF-8 BOM so Excel renders RWF/accents correctly
 
-            fputcsv($out, ['BarPOS Revenue Report']);
+            fputcsv($out, ['Isaro Rubengera Revenue Report']);
             fputcsv($out, ['Period', $periodLabels[$period] ?? $period]);
             fputcsv($out, ['Generated', now()->format('Y-m-d H:i')]);
             fputcsv($out, []);

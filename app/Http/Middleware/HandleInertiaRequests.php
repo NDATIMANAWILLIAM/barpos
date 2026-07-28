@@ -28,7 +28,7 @@ class HandleInertiaRequests extends Middleware
                 'booked'  => $request->session()->get('booked'),
             ],
             'business' => [
-                'name'     => config('app.name', 'BarPOS'),
+                'name'     => config('app.name', 'Isaro Rubengera'),
                 'currency' => 'RWF',
                 'phone'    => null,
                 'address'  => null,

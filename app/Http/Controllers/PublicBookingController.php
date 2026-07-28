@@ -13,7 +13,7 @@ class PublicBookingController extends Controller
     {
         return Inertia::render('Public/Book', [
             'business' => [
-                'name'    => config('app.business_name', config('app.name', 'BarPOS')),
+                'name'    => config('app.business_name', config('app.name', 'Isaro Rubengera')),
                 'phone'   => config('app.business_phone', ''),
                 'address' => config('app.business_address', ''),
             ],

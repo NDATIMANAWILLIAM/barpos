@@ -184,7 +184,7 @@ export default function Index({ period, revenue, orders, byCategory, foodTotal, 
 
             {/* Print header */}
             <div className="hidden print:block px-6 pt-4 pb-2 border-b">
-                <h1 className="text-2xl font-extrabold">BarPOS — Revenue Report</h1>
+                <h1 className="text-2xl font-extrabold">Isaro Rubengera — Revenue Report</h1>
                 <p className="text-sm text-gray-500">{today} · Period: {PERIODS.find(p => p.key === period)?.label}</p>
             </div>
 

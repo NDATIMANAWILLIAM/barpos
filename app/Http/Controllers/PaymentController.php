@@ -165,7 +165,7 @@ class PaymentController extends Controller
                 'phone'   => $business->phone,
                 'address' => $business->address,
                 'tin'     => $business->tin,
-            ] : ['name' => config('app.name', 'BarPOS'), 'phone' => null, 'address' => null, 'tin' => null],
+            ] : ['name' => config('app.name', 'Isaro Rubengera'), 'phone' => null, 'address' => null, 'tin' => null],
         ]);
     }
 }

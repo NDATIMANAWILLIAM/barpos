@@ -17,20 +17,21 @@ export default {
                 serif: ['"Source Serif 4"', ...defaultTheme.fontFamily.serif],
             },
             colors: {
-                // Deep navy chrome — matches the Isaro Rubengera brand mark's
-                // dark backdrop — for sidebars, headers, and dark cards.
+                // Dark blue chrome for sidebars, headers, and dark cards.
+                // Deliberately more saturated/vivid than a desaturated navy —
+                // should read unmistakably as blue, not near-black.
                 ink: {
-                    50:  '#F6F8FB',
-                    100: '#EBEFF6',
-                    200: '#D2DAE8',
-                    300: '#A9B8D2',
-                    400: '#7A8FB4',
-                    500: '#576D93',
-                    600: '#3F5378',
-                    700: '#2C3D5C',
-                    800: '#1B2740',
-                    900: '#111A2E',
-                    950: '#0A101F',
+                    50:  '#F4F7FC',
+                    100: '#E6EDF9',
+                    200: '#C2D3EF',
+                    300: '#93AEE0',
+                    400: '#5F82C9',
+                    500: '#3D5FAE',
+                    600: '#2C478C',
+                    700: '#203570',
+                    800: '#16264F',
+                    900: '#0F1B3C',
+                    950: '#0A1128',
                 },
                 // Copper/bronze brand accent, taken from the logo's copper
                 // arc and lettering — deliberately not the default Tailwind

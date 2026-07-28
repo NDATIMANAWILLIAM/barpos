@@ -58,7 +58,7 @@ function TabSetup() {
             <div className="rounded-2xl bg-amber-50 ring-2 ring-amber-400 p-5">
                 <h3 className="text-base font-extrabold text-amber-900 mb-1">👑 Step 1 — Create the Owner (Super Admin) Account</h3>
                 <p className="text-sm text-amber-800 mb-4">
-                    The first time you set up BarPOS, you need to create the owner account that controls everything.
+                    The first time you set up Isaro Rubengera, you need to create the owner account that controls everything.
                     Open a terminal/command prompt inside the barpos folder and run:
                 </p>
                 <div className="rounded-xl bg-gray-900 px-4 py-3 font-mono text-sm text-green-400 mb-3">
@@ -542,13 +542,13 @@ export default function Payment() {
 
     return (
         <>
-            <Head title="BarPOS Guide" />
+            <Head title="Isaro Rubengera Guide" />
             <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 pb-16">
 
                 {/* Header */}
                 <div className="bg-gradient-to-r from-indigo-700 to-purple-700 px-4 py-10 text-center text-white">
                     <div className="text-5xl mb-3">📖</div>
-                    <h1 className="text-2xl font-extrabold sm:text-3xl">BarPOS Complete Guide</h1>
+                    <h1 className="text-2xl font-extrabold sm:text-3xl">Isaro Rubengera Complete Guide</h1>
                     <p className="mt-2 text-indigo-200 text-sm">Everything you need to run your bar or guest house</p>
                     <Link href="/" className="mt-4 inline-block rounded-full bg-white/20 px-4 py-1.5 text-sm font-semibold text-white hover:bg-white/30">
                         ← Back to Menu

@@ -171,10 +171,10 @@ function Sidebar({ user, role, meta, navItems, onClose }) {
         <div className="flex h-full flex-col bg-ink-900">
             {/* Logo */}
             <div className="flex items-center gap-3 px-4 py-4 border-b border-ink-800">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brass-600 font-serif text-lg font-semibold text-ink-950">B</div>
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brass-600 font-serif text-lg font-semibold text-ink-950">I</div>
                 <div className="min-w-0">
-                    <p className="font-bold text-white leading-none tracking-tight">BarPOS</p>
-                    <p className="text-[10px] text-ink-400 mt-1 uppercase tracking-[0.2em]">Restaurant System</p>
+                    <p className="font-bold text-white leading-none tracking-tight truncate">Isaro Rubengera</p>
+                    <p className="text-[10px] text-ink-400 mt-1 uppercase tracking-[0.2em]">Bar &amp; Lodge</p>
                 </div>
                 {onClose && (
                     <button onClick={onClose} className="ml-auto text-ink-500 hover:text-white transition lg:hidden">{I.x}</button>
@@ -298,8 +298,8 @@ export default function AuthenticatedLayout({ header, children }) {
 
                     {/* Mobile logo */}
                     <div className="flex items-center gap-2 lg:hidden">
-                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-brass-500 font-extrabold text-white text-sm">B</div>
-                        <span className="font-bold text-ink-800 text-sm">BarPOS</span>
+                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-brass-500 font-extrabold text-white text-sm">I</div>
+                        <span className="font-bold text-ink-800 text-sm">Isaro Rubengera</span>
                     </div>
 
                     {/* Desktop: page header */}

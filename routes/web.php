@@ -41,7 +41,7 @@ Route::middleware(['auth', 'role'])->group(function () {
             ->whereDate('created_at', today())
             ->latest()->limit(15)->get()
             ->map(fn ($o) => [
-                'icon'   => '🛒',
+                'type'   => 'order',
                 'text'   => "Order #{$o->order_number}" . ($o->table ? " — {$o->table->label}" : ''),
                 'by'     => $o->waiter?->name ?? 'Client (self-order)',
                 'status' => $o->status,
@@ -52,7 +52,7 @@ Route::middleware(['auth', 'role'])->group(function () {
             ->whereDate('created_at', today())
             ->where('status', 'confirmed')->latest()->limit(10)->get()
             ->map(fn ($p) => [
-                'icon'   => '💰',
+                'type'   => 'payment',
                 'text'   => 'Payment ' . number_format((int)$p->amount) . ' RWF' . ($p->order ? " — #{$p->order->order_number}" : ''),
                 'by'     => $p->cashier?->name ?? 'Cashier',
                 'status' => 'paid',
@@ -62,7 +62,7 @@ Route::middleware(['auth', 'role'])->group(function () {
         $recentReservations = \App\Models\Reservation::with('creator', 'confirmedBy')
             ->latest()->limit(10)->get()
             ->map(fn ($r) => [
-                'icon'   => $r->kind === 'delivery' ? '🚚' : '📅',
+                'type'   => $r->kind === 'delivery' ? 'delivery' : 'booking',
                 'text'   => ($r->kind === 'delivery' ? 'Delivery: ' : 'Booking: ') . $r->customer_name,
                 'by'     => $r->confirmedBy?->name
                                 ? 'Confirmed by ' . $r->confirmedBy->name
