@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\User;
 use App\Notifications\OrderReady;
+use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
 
 class KitchenController extends Controller
@@ -40,13 +42,20 @@ class KitchenController extends Controller
         $orderItem->update(['status' => 'ready']);
 
         // If all items on the order are ready, bump order status to ready
-        // and let the waiter know — otherwise they only find out by polling
-        // or happening to look at the POS screen.
+        // and let the floor staff know — otherwise they only find out by
+        // polling or happening to look at the POS screen. Notify every
+        // active waiter/owner/manager, not just the order's own waiter —
+        // self-orders (QR scan) have no assigned waiter at all, and
+        // whoever's free to serve it may not be the one who took it.
         $order = $orderItem->order()->with(['items', 'table', 'waiter'])->first();
         $allReady = $order->items->every(fn ($i) => in_array($i->status, ['ready', 'served']));
         if ($allReady && $order->status !== 'ready') {
             $order->update(['status' => 'ready']);
-            $order->waiter?->notify(new OrderReady($order));
+
+            $recipients = User::where('is_active', true)
+                ->whereIn('role', ['waiter', 'owner', 'manager'])
+                ->get();
+            Notification::send($recipients, new OrderReady($order));
         }
 
         return back();
