@@ -34,12 +34,14 @@ function SourceBadge({ source }) {
 
 const fmtTime = (iso) => new Date(iso).toLocaleTimeString('en-RW', { hour: '2-digit', minute: '2-digit' });
 
-export default function Index({ categories, menuItems, tables, openOrders, todaysOrders }) {
+export default function Index({ categories, menuItems, tables, openOrders, todaysOrders, prefillReservation }) {
     const [cart, setCart]         = useState([]);
-    const [type, setType]         = useState('dine_in');
-    const [source, setSource]     = useState('walk_in');
-    const [tableId, setTableId]   = useState('');
-    const [notes, setNotes]       = useState('');
+    const [type, setType]         = useState(prefillReservation?.type ?? 'dine_in');
+    const [source, setSource]     = useState(prefillReservation ? 'phone_call' : 'walk_in');
+    const [tableId, setTableId]   = useState(prefillReservation?.table_id ? String(prefillReservation.table_id) : '');
+    const [customerName, setCustomerName]   = useState(prefillReservation?.customer_name ?? '');
+    const [customerPhone, setCustomerPhone] = useState(prefillReservation?.customer_phone ?? '');
+    const [notes, setNotes]       = useState(prefillReservation?.notes ?? '');
     const [activeCat, setActiveCat] = useState('all');
     const [saving, setSaving]     = useState(false);
     const [ordersTab, setOrdersTab] = useState('open'); // 'open' | 'history'
@@ -132,6 +134,8 @@ export default function Index({ categories, menuItems, tables, openOrders, today
                 type,
                 source,
                 table_id: tableId || null,
+                customer_name: customerName || null,
+                customer_phone: customerPhone || null,
                 notes: notes || null,
                 items: cart.map((c) => c.menu_item_id
                     ? { menu_item_id: c.menu_item_id, quantity: c.quantity }
@@ -143,6 +147,8 @@ export default function Index({ categories, menuItems, tables, openOrders, today
                 onSuccess: () => {
                     setCart([]);
                     setTableId('');
+                    setCustomerName('');
+                    setCustomerPhone('');
                     setNotes('');
                 },
                 onFinish: () => setSaving(false),
@@ -169,6 +175,12 @@ export default function Index({ categories, menuItems, tables, openOrders, today
             <Head title="POS" />
 
             <div className="mx-auto max-w-7xl p-4 sm:p-6">
+                {prefillReservation && (
+                    <div className="mb-4 rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800">
+                        <strong>Building order from booking</strong> — {prefillReservation.customer_name}.
+                        Add the items they asked for below, then send to kitchen.
+                    </div>
+                )}
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
 
                     {/* ── Left: menu browser ── */}
@@ -308,6 +320,28 @@ export default function Index({ categories, menuItems, tables, openOrders, today
                                         </button>
                                     </div>
                                 </div>
+                                {(source === 'phone_call' || customerName) && (
+                                    <>
+                                        <div>
+                                            <label className="block text-xs text-gray-500">Customer name (optional)</label>
+                                            <input
+                                                value={customerName}
+                                                onChange={(e) => setCustomerName(e.target.value)}
+                                                placeholder="e.g. Jean Pierre"
+                                                className="mt-1 w-full rounded border-gray-300 text-sm"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs text-gray-500">Customer phone (optional)</label>
+                                            <input
+                                                value={customerPhone}
+                                                onChange={(e) => setCustomerPhone(e.target.value)}
+                                                placeholder="07X XXX XXXX"
+                                                className="mt-1 w-full rounded border-gray-300 text-sm"
+                                            />
+                                        </div>
+                                    </>
+                                )}
                             </div>
 
                             {/* Cart items */}
@@ -510,6 +544,7 @@ export default function Index({ categories, menuItems, tables, openOrders, today
                                                             {o.table && ` · ${o.table.label}`}
                                                             {' · '}
                                                             {o.waiter?.name ?? 'Client (self-order)'}
+                                                            {o.customer_name && ` for ${o.customer_name}`}
                                                             {' · '}
                                                             {o.items.length} item{o.items.length !== 1 ? 's' : ''}
                                                         </div>
@@ -571,6 +606,7 @@ export default function Index({ categories, menuItems, tables, openOrders, today
                                                         <div className="mt-0.5 text-xs text-gray-400">
                                                             {o.type.replace('_', ' ')}
                                                             {o.table && ` · ${o.table.label}`}
+                                                            {o.customer_name && ` · ${o.customer_name}`}
                                                             {' · '}
                                                             {readyCount}/{o.items.length} item{o.items.length !== 1 ? 's' : ''} ready
                                                         </div>

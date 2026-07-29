@@ -27,26 +27,24 @@ class CustomerOrderController extends Controller
             $table = DiningTable::where('qr_token', $data['table_token'])->first();
         }
 
-        // Embed customer info in notes (no customer_name column on orders table)
-        $notePrefix = "[From: {$data['customer_name']} | {$data['phone']}]";
-        $fullNotes  = trim($notePrefix . ' ' . ($data['notes'] ?? ''));
-
-        $order = DB::transaction(function () use ($data, $table, $fullNotes) {
+        $order = DB::transaction(function () use ($data, $table) {
             $seq = Order::whereDate('created_at', today())->count() + 1;
 
             $order = Order::create([
-                'order_number' => now()->format('Ymd') . '-' . str_pad($seq, 3, '0', STR_PAD_LEFT),
-                'type'         => 'dine_in',
-                'source'       => 'qr_scan',
-                'table_id'     => $table?->id,
-                'waiter_id'    => null,   // self-order — no waiter assigned yet
-                'status'       => 'open',
-                'notes'        => $fullNotes,
-                'placed_at'    => now(),
-                'subtotal'     => 0,
-                'tax'          => 0,
-                'discount'     => 0,
-                'total'        => 0,
+                'order_number'   => now()->format('Ymd') . '-' . str_pad($seq, 3, '0', STR_PAD_LEFT),
+                'type'           => 'dine_in',
+                'source'         => 'qr_scan',
+                'table_id'       => $table?->id,
+                'waiter_id'      => null,   // self-order — no waiter assigned yet
+                'customer_name'  => $data['customer_name'],
+                'customer_phone' => $data['phone'],
+                'status'         => 'open',
+                'notes'          => $data['notes'] ?? null,
+                'placed_at'      => now(),
+                'subtotal'       => 0,
+                'tax'            => 0,
+                'discount'       => 0,
+                'total'          => 0,
             ]);
 
             $subtotal = 0;

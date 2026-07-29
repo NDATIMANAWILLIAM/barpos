@@ -10,6 +10,11 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class ReportsController extends Controller
 {
@@ -21,10 +26,10 @@ class ReportsController extends Controller
     }
 
     /**
-     * CSV export (opens directly in Excel) of the same report data shown
-     * on-screen for the given period — revenue, categories, payment
-     * methods, top items, and staff performance as clearly labelled
-     * sections separated by blank rows.
+     * Formatted .xlsx export (opens directly in Excel) of the same report
+     * data shown on-screen for the given period. Every figure in this file
+     * is scoped to the selected period only — no other periods are mixed
+     * in — so what you picked on screen is exactly what you get.
      */
     public function export(Request $request)
     {
@@ -35,73 +40,131 @@ class ReportsController extends Controller
             'today' => 'Today', 'week' => 'This Week', 'month' => 'This Month',
             'year' => 'This Year', 'all' => 'All Time',
         ];
+        $periodLabel = $periodLabels[$period] ?? $period;
 
-        $filename = 'barpos-report-' . $period . '-' . now()->format('Y-m-d') . '.csv';
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Report');
 
-        return response()->streamDownload(function () use ($data, $period, $periodLabels) {
-            $out = fopen('php://output', 'w');
-            fwrite($out, "\xEF\xBB\xBF"); // UTF-8 BOM so Excel renders RWF/accents correctly
+        $navy  = '0F1B3C';
+        $brass = 'B5762F';
+        $lightGrey = 'F4F7FC';
+        $row = 1;
 
-            fputcsv($out, ['Isaro Rubengera Revenue Report']);
-            fputcsv($out, ['Period', $periodLabels[$period] ?? $period]);
-            fputcsv($out, ['Generated', now()->format('Y-m-d H:i')]);
-            fputcsv($out, []);
+        $writeTitle = function (string $text) use ($sheet, &$row, $navy) {
+            $sheet->setCellValue("A{$row}", $text);
+            $sheet->mergeCells("A{$row}:E{$row}");
+            $sheet->getStyle("A{$row}")->getFont()->setBold(true)->setSize(16)->getColor()->setRGB('FFFFFF');
+            $sheet->getStyle("A{$row}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB($navy);
+            $sheet->getRowDimension($row)->setRowHeight(26);
+            $row++;
+        };
 
-            fputcsv($out, ['REVENUE SUMMARY']);
-            fputcsv($out, ['Metric', 'Value (RWF)']);
-            fputcsv($out, ['Selected period', $data['revenue']['period']]);
-            fputcsv($out, ['Today', $data['revenue']['today']]);
-            fputcsv($out, ['This week', $data['revenue']['week']]);
-            fputcsv($out, ['This month', $data['revenue']['month']]);
-            fputcsv($out, ['This year', $data['revenue']['year']]);
-            fputcsv($out, ['All time', $data['revenue']['all']]);
-            fputcsv($out, []);
+        $writeSubtitle = function (string $text) use ($sheet, &$row) {
+            $sheet->setCellValue("A{$row}", $text);
+            $sheet->mergeCells("A{$row}:E{$row}");
+            $sheet->getStyle("A{$row}")->getFont()->setItalic(true)->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('FF666666'));
+            $row++;
+        };
 
-            fputcsv($out, ['ORDERS']);
-            fputcsv($out, ['Metric', 'Count']);
-            fputcsv($out, ['Total', $data['orders']['total']]);
-            fputcsv($out, ['Paid', $data['orders']['paid']]);
-            fputcsv($out, ['Open', $data['orders']['open']]);
-            fputcsv($out, ['Cancelled', $data['orders']['cancelled']]);
-            fputcsv($out, []);
+        $writeSectionHeader = function (string $text) use ($sheet, &$row, $brass) {
+            $row++; // blank row before each section
+            $sheet->setCellValue("A{$row}", strtoupper($text));
+            $sheet->mergeCells("A{$row}:E{$row}");
+            $sheet->getStyle("A{$row}")->getFont()->setBold(true)->getColor()->setRGB('FFFFFF');
+            $sheet->getStyle("A{$row}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB($brass);
+            $row++;
+        };
 
-            fputcsv($out, ['REVENUE BY CATEGORY']);
-            fputcsv($out, ['Category', 'Kind', 'Qty Sold', 'Revenue (RWF)']);
-            foreach ($data['byCategory'] as $c) {
-                fputcsv($out, [$c['name'], $c['kind'], $c['qty'], $c['revenue']]);
+        $writeTableHeader = function (array $cols) use ($sheet, &$row, $lightGrey) {
+            $col = 'A';
+            foreach ($cols as $c) {
+                $sheet->setCellValue("{$col}{$row}", $c);
+                $col++;
             }
-            fputcsv($out, []);
+            $lastCol = chr(ord('A') + count($cols) - 1);
+            $sheet->getStyle("A{$row}:{$lastCol}{$row}")->getFont()->setBold(true);
+            $sheet->getStyle("A{$row}:{$lastCol}{$row}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB($lightGrey);
+            $sheet->getStyle("A{$row}:{$lastCol}{$row}")->getBorders()->getBottom()->setBorderStyle(Border::BORDER_THIN);
+            $row++;
+        };
 
-            fputcsv($out, ['ORDER SOURCE']);
-            fputcsv($out, ['Source', 'Orders', 'Revenue (RWF)']);
-            foreach ($data['bySource'] as $s) {
-                fputcsv($out, [$s['source'], $s['count'], $s['revenue']]);
+        $writeRow = function (array $vals) use ($sheet, &$row) {
+            $col = 'A';
+            foreach ($vals as $v) {
+                $sheet->setCellValue("{$col}{$row}", $v);
+                $col++;
             }
-            fputcsv($out, []);
+            $row++;
+        };
 
-            fputcsv($out, ['PAYMENT METHODS']);
-            fputcsv($out, ['Method', 'Transactions', 'Total (RWF)']);
-            foreach ($data['byMethod'] as $m) {
-                fputcsv($out, [$m['method'], $m['count'], $m['total']]);
-            }
-            fputcsv($out, []);
+        // ── Header ──────────────────────────────────────────────────────
+        $writeTitle('Isaro Rubengera Revenue Report');
+        $writeSubtitle("Period: {$periodLabel}  ·  Generated: " . now()->format('d M Y, H:i'));
 
-            fputcsv($out, ['TOP SELLING ITEMS']);
-            fputcsv($out, ['Item', 'Qty Sold', 'Revenue (RWF)']);
-            foreach ($data['topItems'] as $i) {
-                fputcsv($out, [$i['name'], $i['qty'], $i['revenue']]);
-            }
-            fputcsv($out, []);
+        // ── Revenue (this period only — no other-period clutter) ───────
+        $writeSectionHeader('Revenue — ' . $periodLabel);
+        $writeTableHeader(['Metric', 'Value (RWF)']);
+        $writeRow(['Revenue (paid orders)', $data['revenue']['period']]);
+        $writeRow(['Total orders', $data['orders']['total']]);
+        $writeRow(['Paid', $data['orders']['paid']]);
+        $writeRow(['Cancelled', $data['orders']['cancelled']]);
+        $writeRow(['Currently open (live, not limited to this period)', $data['orders']['open']]);
 
-            fputcsv($out, ['STAFF PERFORMANCE']);
-            fputcsv($out, ['Staff', 'Role', 'Orders', 'Bookings Confirmed', 'Payments', 'Revenue Generated (RWF)']);
-            foreach ($data['workerPerf'] as $w) {
-                fputcsv($out, [$w['name'], $w['role'], $w['orders'], $w['reservations'], $w['payments'], $w['revenue']]);
-            }
+        // ── Revenue by category ──────────────────────────────────────────
+        $writeSectionHeader('Revenue by Category');
+        $writeTableHeader(['Category', 'Kind', 'Qty Sold', 'Revenue (RWF)']);
+        foreach ($data['byCategory'] as $c) {
+            $writeRow([$c['name'], ucfirst($c['kind']), $c['qty'], $c['revenue']]);
+        }
+        if ($data['byCategory']->isEmpty()) $writeRow(['No sales in this period.']);
 
-            fclose($out);
+        // ── Order source ──────────────────────────────────────────────
+        $sourceLabels = ['qr_scan' => 'QR self-order', 'phone_call' => 'Phone call', 'walk_in' => 'Walk-in', 'online' => 'Online booking'];
+        $writeSectionHeader('Order Source');
+        $writeTableHeader(['Source', 'Orders', 'Revenue (RWF)']);
+        foreach ($data['bySource'] as $s) {
+            $writeRow([$sourceLabels[$s['source']] ?? $s['source'], $s['count'], $s['revenue']]);
+        }
+        if ($data['bySource']->isEmpty()) $writeRow(['No orders in this period.']);
+
+        // ── Payment methods ──────────────────────────────────────────────
+        $methodLabels = ['cash' => 'Cash', 'mtn_momo' => 'MTN MoMo', 'airtel_money' => 'Airtel Money', 'card' => 'Card', 'bank' => 'Bank Transfer'];
+        $writeSectionHeader('Payment Methods');
+        $writeTableHeader(['Method', 'Transactions', 'Total (RWF)']);
+        foreach ($data['byMethod'] as $m) {
+            $writeRow([$methodLabels[$m['method']] ?? $m['method'], $m['count'], $m['total']]);
+        }
+        if ($data['byMethod']->isEmpty()) $writeRow(['No payments in this period.']);
+
+        // ── Top selling items ────────────────────────────────────────────
+        $writeSectionHeader('Top Selling Items');
+        $writeTableHeader(['Item', 'Qty Sold', 'Revenue (RWF)']);
+        foreach ($data['topItems'] as $i) {
+            $writeRow([$i['name'], $i['qty'], $i['revenue']]);
+        }
+        if ($data['topItems']->isEmpty()) $writeRow(['No sales in this period.']);
+
+        // ── Staff performance ────────────────────────────────────────────
+        $writeSectionHeader('Staff Performance');
+        $writeTableHeader(['Staff', 'Role', 'Orders', 'Bookings Confirmed', 'Payments', 'Revenue Generated (RWF)']);
+        foreach ($data['workerPerf'] as $w) {
+            $writeRow([$w['name'], ucfirst($w['role']), $w['orders'], $w['reservations'], $w['payments'], $w['revenue']]);
+        }
+        if ($data['workerPerf']->isEmpty()) $writeRow(['No staff activity in this period.']);
+
+        // Column widths + freeze header
+        foreach (['A' => 30, 'B' => 18, 'C' => 16, 'D' => 20, 'E' => 22] as $col => $width) {
+            $sheet->getColumnDimension($col)->setWidth($width);
+        }
+        $sheet->getStyle('A1:A' . $row)->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+
+        $filename = 'isaro-rubengera-report-' . $period . '-' . now()->format('Y-m-d') . '.xlsx';
+
+        return response()->streamDownload(function () use ($spreadsheet) {
+            (new Xlsx($spreadsheet))->save('php://output');
         }, $filename, [
-            'Content-Type' => 'text/csv',
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         ]);
     }
 

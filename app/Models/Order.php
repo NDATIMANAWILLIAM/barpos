@@ -11,6 +11,7 @@ class Order extends Model
 {
     protected $fillable = [
         'order_number', 'type', 'source', 'table_id', 'room_id', 'customer_id', 'waiter_id',
+        'customer_name', 'customer_phone',
         'status', 'subtotal', 'discount', 'tax', 'total', 'notes', 'placed_at',
     ];
 

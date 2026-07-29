@@ -6,14 +6,36 @@ use App\Models\DiningTable;
 use App\Models\MenuItem;
 use App\Models\MenuCategory;
 use App\Models\Order;
+use App\Models\Reservation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class OrderController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        // A confirmed booking previously had no path into the kitchen at
+        // all — confirming it never created an actual order. "Create
+        // Order" on a confirmed reservation lands here with its details
+        // pre-filled so staff can turn what the client asked for into
+        // real menu items in one step, instead of it just sitting in a
+        // notes field nobody acts on.
+        $prefillReservation = null;
+        if ($request->filled('reservation_id')) {
+            $r = Reservation::with('table')->find($request->integer('reservation_id'));
+            if ($r) {
+                $prefillReservation = [
+                    'id'              => $r->id,
+                    'customer_name'   => $r->customer_name,
+                    'customer_phone'  => $r->phone,
+                    'table_id'        => $r->table_id,
+                    'type'            => $r->kind === 'delivery' ? 'takeaway' : 'dine_in',
+                    'notes'           => $r->notes,
+                ];
+            }
+        }
+
         return Inertia::render('Pos/Index', [
             'categories' => MenuCategory::orderBy('sort_order')->orderBy('name')->get(),
             'menuItems'  => MenuItem::with('category')
@@ -37,6 +59,7 @@ class OrderController extends Controller
                 ->whereDate('created_at', today())
                 ->latest()
                 ->get(),
+            'prefillReservation' => $prefillReservation,
         ]);
     }
 
@@ -46,6 +69,8 @@ class OrderController extends Controller
             'type'                   => 'required|in:dine_in,takeaway,room_service',
             'source'                 => 'required|in:phone_call,walk_in',
             'table_id'               => 'nullable|exists:dining_tables,id',
+            'customer_name'          => 'nullable|string|max:100',
+            'customer_phone'         => 'nullable|string|max:30',
             'notes'                  => 'nullable|string|max:255',
             'items'                  => 'required|array|min:1',
             // Menu items: menu_item_id provided
@@ -61,14 +86,16 @@ class OrderController extends Controller
             $seq = Order::whereDate('created_at', today())->count() + 1;
 
             $order = Order::create([
-                'order_number' => now()->format('Ymd') . '-' . str_pad($seq, 3, '0', STR_PAD_LEFT),
-                'type'         => $data['type'],
-                'source'       => $data['source'],
-                'table_id'     => $data['table_id'] ?? null,
-                'waiter_id'    => $request->user()->id,
-                'status'       => 'open',
-                'notes'        => $data['notes'] ?? null,
-                'placed_at'    => now(),
+                'order_number'   => now()->format('Ymd') . '-' . str_pad($seq, 3, '0', STR_PAD_LEFT),
+                'type'           => $data['type'],
+                'source'         => $data['source'],
+                'table_id'       => $data['table_id'] ?? null,
+                'waiter_id'      => $request->user()->id,
+                'customer_name'  => $data['customer_name'] ?? null,
+                'customer_phone' => $data['customer_phone'] ?? null,
+                'status'         => 'open',
+                'notes'          => $data['notes'] ?? null,
+                'placed_at'      => now(),
             ]);
 
             $subtotal = 0;

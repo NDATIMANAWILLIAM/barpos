@@ -125,7 +125,7 @@ function TableCard({ table, servants }) {
                                 <p className="text-xs font-bold text-gray-900">{rwf(o.total)}</p>
                             </div>
                             <div className="flex items-center justify-between mt-0.5">
-                                <p className="text-xs text-gray-500">👤 {o.waiter}</p>
+                                <p className="text-xs text-gray-500">👤 {o.waiter}{o.customer_name && ` for ${o.customer_name}`}</p>
                                 <p className="text-xs text-gray-400">{fmtAge(o.placed_at)}</p>
                             </div>
                         </div>
@@ -179,7 +179,7 @@ function OrderRow({ o }) {
                         }`}>{o.status}</span>
                     </div>
                     <p className="text-xs text-gray-500 mt-0.5">
-                        👤 {o.waiter}
+                        👤 {o.waiter}{o.customer_name && ` for ${o.customer_name}`}
                         {o.new_items > 0 && <span className="ml-2 text-amber-600 font-semibold">⏳ {o.new_items} waiting</span>}
                         {o.preparing > 0 && <span className="ml-2 text-orange-600 font-semibold">🔥 {o.preparing} cooking</span>}
                         {o.ready > 0 && <span className="ml-2 text-blue-600 font-semibold">✓ {o.ready} ready</span>}

@@ -92,6 +92,7 @@ class OperationsController extends Controller
                 'source'        => $o->source,
                 'table'         => $o->table?->label,
                 'waiter'        => $o->waiter?->name ?? 'Client (self-order)',
+                'customer_name' => $o->customer_name,
                 'status'        => $o->status,
                 'total'         => (int) $o->total,
                 'placed_at'     => $o->placed_at?->toISOString() ?? $o->created_at->toISOString(),

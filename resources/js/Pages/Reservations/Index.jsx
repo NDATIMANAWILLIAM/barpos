@@ -64,6 +64,7 @@ function ReservationCard({ reservation: r, onDelete, tables }) {
     const [agreedPrice, setAgreedPrice] = useState('');
     const [deliveryFee, setDeliveryFee] = useState('');
     const [callNotes, setCallNotes] = useState('');
+    const [confirmTableId, setConfirmTableId] = useState('');
 
     const isDelivery = r.kind === 'delivery';
     const deposit = agreedPrice ? Math.round(Number(agreedPrice.replace(/\D/g, '')) * 0.5) : 0;
@@ -93,11 +94,11 @@ function ReservationCard({ reservation: r, onDelete, tables }) {
 
         router.patch(route('reservations.update', r.id), {
             status:     'confirmed',
-            table_id:   isDelivery ? null : (document.getElementById(`tbl-${r.id}`)?.value || null),
+            table_id:   isDelivery ? null : (confirmTableId || null),
             call_notes: parts.join(' | '),
         }, {
             preserveScroll: true,
-            onSuccess: () => { setConfirmOpen(false); setAgreedPrice(''); setDeliveryFee(''); setCallNotes(''); },
+            onSuccess: () => { setConfirmOpen(false); setAgreedPrice(''); setDeliveryFee(''); setCallNotes(''); setConfirmTableId(''); },
         });
     };
 
@@ -176,12 +177,20 @@ function ReservationCard({ reservation: r, onDelete, tables }) {
                         </button>
                     )}
                     {r.status === 'confirmed' && (
-                        <button
-                            onClick={() => quickStatus('seated')}
-                            className="rounded-xl bg-green-600 px-4 py-2 text-xs font-bold text-white hover:bg-green-700"
-                        >
-                            {isDelivery ? '🚚 Mark Out for Delivery' : '🪑 Seat Now'}
-                        </button>
+                        <>
+                            <Link
+                                href={route('pos.index', { reservation_id: r.id })}
+                                className="rounded-xl bg-amber-500 px-4 py-2 text-xs font-bold text-white hover:bg-amber-600 shadow text-center"
+                            >
+                                🍽️ Create Order
+                            </Link>
+                            <button
+                                onClick={() => quickStatus('seated')}
+                                className="rounded-xl bg-green-600 px-4 py-2 text-xs font-bold text-white hover:bg-green-700"
+                            >
+                                {isDelivery ? '🚚 Mark Out for Delivery' : '🪑 Seat Now'}
+                            </button>
+                        </>
                     )}
                     {/* Delivery: mark delivered once out */}
                     {isDelivery && r.status === 'seated' && (
@@ -263,9 +272,9 @@ function ReservationCard({ reservation: r, onDelete, tables }) {
                                 />
                             ) : (
                                 <select
-                                    id={`tbl-${r.id}`}
                                     className="w-full rounded-xl border-gray-300 text-sm bg-white"
-                                    defaultValue=""
+                                    value={confirmTableId}
+                                    onChange={e => setConfirmTableId(e.target.value)}
                                 >
                                     <option value="">— No specific table yet —</option>
                                     {tables.map(t => (
