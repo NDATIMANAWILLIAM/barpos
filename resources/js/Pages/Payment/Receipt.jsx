@@ -141,15 +141,6 @@ export default function Receipt({ order, payment, cashier, business }) {
                                     </div>
                                     <span className="font-bold text-ink-800">{rwf(payment.amount)}</span>
                                 </div>
-
-                                {/* EBM / Fiscal receipt */}
-                                {payment.ebm_number && (
-                                    <div className="mt-3 rounded-xl bg-ink-950 px-4 py-3">
-                                        <p className="text-xs font-bold uppercase tracking-wide text-brass-400 mb-1">EBM Fiscal Receipt (RRA)</p>
-                                        <p className="font-mono text-base font-extrabold text-white tracking-wider">{payment.ebm_number}</p>
-                                        <p className="text-xs text-ink-300 mt-0.5">Verify at: <span className="font-mono">www.rra.gov.rw</span></p>
-                                    </div>
-                                )}
                             </div>
                         )}
 
@@ -227,13 +218,7 @@ export default function Receipt({ order, payment, cashier, business }) {
                 {payment && (
                     <div style={{ borderTop: '1px dashed #000', paddingTop: '2mm', marginBottom: '3mm' }}>
                         <div>Paid via: {payment.method_label}</div>
-                        {payment.reference  && <div>Ref: {payment.reference}</div>}
-                        {payment.ebm_number && (
-                            <div style={{ marginTop: '2mm', border: '1px solid #000', padding: '1mm' }}>
-                                <div style={{ fontWeight: 'bold' }}>EBM (RRA)</div>
-                                <div style={{ fontSize: '14px', fontWeight: 'bold' }}>{payment.ebm_number}</div>
-                            </div>
-                        )}
+                        {payment.reference && <div>Ref: {payment.reference}</div>}
                     </div>
                 )}
 

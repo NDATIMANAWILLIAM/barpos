@@ -268,14 +268,12 @@ export default function Index({ order, paymentMethods }) {
     const defaultMethod = paymentMethods[0]?.key ?? 'cash';
     const [activeKey, setActiveKey]     = useState(defaultMethod);
     const [reference, setReference]     = useState('');
-    const [ebmNumber, setEbmNumber]     = useState('');
     const [amountGiven, setAmountGiven] = useState(order.total);
 
     const form = useForm({
         method:       defaultMethod,
         amount_given: order.total,
         reference:    '',
-        ebm_number:   '',
     });
 
     const activeMethod = paymentMethods.find((m) => m.key === activeKey);
@@ -298,7 +296,6 @@ export default function Index({ order, paymentMethods }) {
             method:       activeKey,
             amount_given: activeKey === 'cash' ? amountGiven : order.total,
             reference:    reference,
-            ebm_number:   ebmNumber,
         });
         form.post(route('payments.store', order.id));
     };
@@ -450,28 +447,6 @@ export default function Index({ order, paymentMethods }) {
                                         setReference={setReference}
                                     />
                                 )}
-
-                                {/* EBM / RRA Fiscal receipt field */}
-                                <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
-                                    <div className="flex items-start gap-3">
-                                        <span className="text-xl">🧾</span>
-                                        <div className="flex-1">
-                                            <label className="block text-sm font-bold text-blue-800 mb-1">
-                                                EBM Number — Inomero y'EBM (RRA) <span className="font-normal text-blue-500">(optional)</span>
-                                            </label>
-                                            <input
-                                                type="text"
-                                                className="w-full rounded-xl border-blue-200 bg-white text-sm font-mono shadow-sm focus:border-blue-400 focus:ring-blue-400"
-                                                value={ebmNumber}
-                                                onChange={(e) => setEbmNumber(e.target.value)}
-                                                placeholder="e.g. 0780000000001234"
-                                            />
-                                            <p className="mt-1 text-xs text-blue-500">
-                                                Enter the EBM receipt number from your Electronic Billing Machine (if applicable). This will appear on the printed receipt.
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
 
                                 {form.errors.amount_given && (
                                     <p className="rounded-xl bg-red-50 p-3 text-sm text-red-600">

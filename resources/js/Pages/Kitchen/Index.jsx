@@ -15,11 +15,11 @@ function elapsed(placedAt) {
     return `${mins} mins ago`;
 }
 
-function OrderCard({ order, station }) {
-    const stationItems = order[station + '_items'] ?? [];
-    const pending = stationItems.filter((i) => i.status === 'new');
+function OrderCard({ order }) {
+    const items = order.kitchen_items ?? [];
+    const pending = items.filter((i) => i.status === 'new');
 
-    if (stationItems.length === 0) return null;
+    if (items.length === 0) return null;
 
     const markReady = (itemId) => {
         router.patch(route('kitchen.items.ready', itemId), {}, { preserveScroll: true });
@@ -38,18 +38,18 @@ function OrderCard({ order, station }) {
                     <div className={`inline-flex items-center gap-2 rounded-xl px-3 py-1 mb-2 text-white text-sm font-extrabold shadow-sm ${
                         pending.length > 0 ? 'bg-orange-500' : 'bg-green-600'
                     }`}>
-                        🪑 {order.table}
+                        Table {order.table}
                     </div>
                 ) : (
                     <div className="inline-flex items-center gap-1.5 rounded-xl px-3 py-1 mb-2 bg-gray-500 text-white text-xs font-bold">
-                        🏪 Counter / Takeaway
+                        Counter / Takeaway
                     </div>
                 )}
                 <div className="flex items-center justify-between">
                     <span className="text-sm font-bold text-gray-700">#{order.order_number}</span>
                     <div className="text-right">
                         <div className={`text-xs font-semibold ${pending.length > 0 ? 'text-orange-600' : 'text-green-600'}`}>
-                            {pending.length > 0 ? `${pending.length} item${pending.length !== 1 ? 's' : ''} pending` : '✓ All ready'}
+                            {pending.length > 0 ? `${pending.length} item${pending.length !== 1 ? 's' : ''} pending` : 'All ready'}
                         </div>
                         <div className="text-xs text-gray-400">{elapsed(order.placed_at)}</div>
                     </div>
@@ -58,7 +58,7 @@ function OrderCard({ order, station }) {
 
             {/* Items */}
             <div className="divide-y px-4">
-                {stationItems.map((item) => (
+                {items.map((item) => (
                     <div key={item.id} className="flex items-center justify-between py-3">
                         <div className="flex items-center gap-3">
                             <span
@@ -101,8 +101,7 @@ function OrderCard({ order, station }) {
 }
 
 export default function Index({ orders }) {
-    const [activeStation, setActiveStation] = useState('kitchen');
-    const [now, setNow] = useState(Date.now());
+    const [, setNow] = useState(Date.now());
 
     // Refresh timestamps every minute
     useEffect(() => {
@@ -116,20 +115,8 @@ export default function Index({ orders }) {
         return () => clearInterval(t);
     }, []);
 
-    const kitchenOrders = orders.filter(
-        (o) => (o.kitchen_items ?? []).length > 0
-    );
-    const barOrders = orders.filter(
-        (o) => (o.bar_items ?? []).length > 0
-    );
-
-    const displayed = activeStation === 'kitchen' ? kitchenOrders : barOrders;
-
-    const pendingKitchen = kitchenOrders.filter(
-        (o) => o.kitchen_items.some((i) => i.status === 'new')
-    ).length;
-    const pendingBar = barOrders.filter(
-        (o) => o.bar_items.some((i) => i.status === 'new')
+    const pending = orders.filter(
+        (o) => (o.kitchen_items ?? []).some((i) => i.status === 'new')
     ).length;
 
     return (
@@ -137,7 +124,7 @@ export default function Index({ orders }) {
             header={
                 <div className="flex items-center justify-between">
                     <h2 className="text-xl font-semibold text-gray-800">
-                        Kitchen &amp; Bar Display
+                        Kitchen Display
                     </h2>
                     <button
                         onClick={() => router.reload({ preserveScroll: true })}
@@ -152,61 +139,31 @@ export default function Index({ orders }) {
 
             <div className="mx-auto max-w-6xl p-4 sm:p-6">
 
-                {/* Station tabs */}
-                <div className="mb-6 flex gap-3">
-                    <button
-                        onClick={() => setActiveStation('kitchen')}
-                        className={`relative rounded-xl px-6 py-3 text-sm font-semibold transition-all ${
-                            activeStation === 'kitchen'
-                                ? 'bg-orange-500 text-white shadow'
-                                : 'bg-white text-gray-600 shadow hover:bg-orange-50'
-                        }`}
-                    >
-                        Kitchen
-                        {pendingKitchen > 0 && (
+                <div className="mb-6 flex items-center gap-3">
+                    <div className="relative rounded-xl bg-orange-500 px-6 py-3 text-sm font-semibold text-white shadow">
+                        Food orders
+                        {pending > 0 && (
                             <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-                                {pendingKitchen}
+                                {pending}
                             </span>
                         )}
-                    </button>
-                    <button
-                        onClick={() => setActiveStation('bar')}
-                        className={`relative rounded-xl px-6 py-3 text-sm font-semibold transition-all ${
-                            activeStation === 'bar'
-                                ? 'bg-blue-500 text-white shadow'
-                                : 'bg-white text-gray-600 shadow hover:bg-blue-50'
-                        }`}
-                    >
-                        Bar
-                        {pendingBar > 0 && (
-                            <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-                                {pendingBar}
-                            </span>
-                        )}
-                    </button>
+                    </div>
                     <div className="ml-auto self-center text-sm text-gray-400">
                         Auto-refreshes every 30s
                     </div>
                 </div>
 
                 {/* Order cards */}
-                {displayed.length === 0 ? (
+                {orders.length === 0 ? (
                     <div className="rounded-xl bg-white py-16 text-center shadow">
-                        <div className="text-4xl">
-                            {activeStation === 'kitchen' ? '' : ''}
-                        </div>
-                        <p className="mt-4 text-gray-500">
-                            No active {activeStation} orders right now.
+                        <p className="text-gray-500">
+                            No active kitchen orders right now.
                         </p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                        {displayed.map((order) => (
-                            <OrderCard
-                                key={order.id}
-                                order={order}
-                                station={activeStation}
-                            />
+                        {orders.map((order) => (
+                            <OrderCard key={order.id} order={order} />
                         ))}
                     </div>
                 )}

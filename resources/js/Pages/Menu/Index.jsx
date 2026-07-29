@@ -14,11 +14,14 @@ export default function Index({ categories, items }) {
     const editCatForm = useForm({ name: '', kind: 'food' });
 
     // --- Item form (shared for add + edit) ---
+    const defaultStationFor = (categoryId) =>
+        categories.find((c) => String(c.id) === String(categoryId))?.kind === 'drink' ? 'bar' : 'kitchen';
+
     const itemForm = useForm({
         category_id: categories[0]?.id ?? '',
         name: '',
         price: '',
-        prep_station: 'kitchen',
+        prep_station: defaultStationFor(categories[0]?.id),
         description: '',
         is_special: false,
     });
@@ -188,7 +191,17 @@ export default function Index({ categories, items }) {
                                 <select
                                     className="mt-1 w-full rounded border-gray-300 text-sm"
                                     value={itemForm.data.category_id}
-                                    onChange={(e) => itemForm.setData('category_id', e.target.value)}
+                                    onChange={(e) => {
+                                        const categoryId = e.target.value;
+                                        itemForm.setData((prev) => ({
+                                            ...prev,
+                                            category_id: categoryId,
+                                            // Only auto-switch the station when adding a new item —
+                                            // editing an existing item shouldn't silently override a
+                                            // station someone already deliberately chose.
+                                            prep_station: editingItem ? prev.prep_station : defaultStationFor(categoryId),
+                                        }));
+                                    }}
                                 >
                                     {categories.map((c) => (
                                         <option key={c.id} value={c.id}>

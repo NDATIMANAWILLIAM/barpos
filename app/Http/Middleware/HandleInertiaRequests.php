@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\BusinessProfile;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -27,12 +28,15 @@ class HandleInertiaRequests extends Middleware
                 'info'    => $request->session()->get('info'),
                 'booked'  => $request->session()->get('booked'),
             ],
-            'business' => [
-                'name'     => config('app.name', 'Isaro Rubengera'),
-                'currency' => 'RWF',
-                'phone'    => null,
-                'address'  => null,
-            ],
+            'business' => (function () {
+                $b = BusinessProfile::first();
+                return [
+                    'name'     => $b?->name ?? config('app.name', 'BarPOS'),
+                    'currency' => 'RWF',
+                    'phone'    => $b?->phone,
+                    'address'  => $b?->address,
+                ];
+            })(),
             'notifications' => $request->user()
                 ? $request->user()->unreadNotifications()->limit(10)->get(['id', 'data', 'created_at'])
                 : [],

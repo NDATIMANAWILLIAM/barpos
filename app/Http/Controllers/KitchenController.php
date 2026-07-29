@@ -11,22 +11,24 @@ class KitchenController extends Controller
 {
     public function index()
     {
-        $orders = Order::with(['items', 'table'])
+        // Kitchen-only — bar/drink items never appear here. Bar prep is
+        // simple enough that waiters track it themselves from POS, and
+        // mixing the two confused kitchen staff about what was actually
+        // theirs to act on.
+        $orders = Order::with(['items' => fn ($q) => $q->where('prep_station', 'kitchen'), 'table'])
             ->whereNotIn('status', ['paid', 'cancelled'])
+            ->whereHas('items', fn ($q) => $q->where('prep_station', 'kitchen'))
             ->orderBy('placed_at')
             ->get()
-            ->map(function ($order) {
-                return [
-                    'id'           => $order->id,
-                    'order_number' => $order->order_number,
-                    'type'         => $order->type,
-                    'table'        => $order->table?->label,
-                    'placed_at'    => $order->placed_at,
-                    'status'       => $order->status,
-                    'kitchen_items' => $order->items->where('prep_station', 'kitchen')->values(),
-                    'bar_items'     => $order->items->where('prep_station', 'bar')->values(),
-                ];
-            });
+            ->map(fn ($order) => [
+                'id'            => $order->id,
+                'order_number'  => $order->order_number,
+                'type'          => $order->type,
+                'table'         => $order->table?->label,
+                'placed_at'     => $order->placed_at,
+                'status'        => $order->status,
+                'kitchen_items' => $order->items->values(),
+            ]);
 
         return Inertia::render('Kitchen/Index', [
             'orders' => $orders,

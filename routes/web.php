@@ -130,11 +130,18 @@ Route::middleware(['auth', 'role'])->group(function () {
         Route::get('/pos/orders/{order}/receipt',  [PaymentController::class, 'receipt'])->name('payments.receipt');
     });
 
-    // ── Kitchen & bar display (owner, manager, kitchen) ────────────────────
+    // ── Kitchen display (owner, manager, kitchen) — food items only, bar
+    //    items never appear here, see below ──────────────────────────────
     Route::middleware('role:owner,manager,kitchen')->group(function () {
-        Route::get('/kitchen',                           [KitchenController::class, 'index'])->name('kitchen.index');
-        Route::patch('/kitchen/items/{orderItem}/ready', [KitchenController::class, 'markReady'])->name('kitchen.items.ready');
+        Route::get('/kitchen', [KitchenController::class, 'index'])->name('kitchen.index');
     });
+
+    // Marking any item ready (kitchen or bar) — kitchen staff use this from
+    // the Kitchen Display, waiters use it from POS for bar items, since bar
+    // orders intentionally never show up on the kitchen-facing screen.
+    Route::middleware('role:owner,manager,kitchen,waiter')
+        ->patch('/kitchen/items/{orderItem}/ready', [KitchenController::class, 'markReady'])
+        ->name('kitchen.items.ready');
 
     // ── Live Operations (all operational staff) ────────────────────────────
     Route::middleware('role:owner,manager,cashier,waiter,receptionist,kitchen')->group(function () {

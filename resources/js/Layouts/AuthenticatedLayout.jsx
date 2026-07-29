@@ -162,6 +162,8 @@ function NavGroup({ label, children }) {
 
 // ── Sidebar ───────────────────────────────────────────────────────────────────
 function Sidebar({ user, role, meta, navItems, onClose }) {
+    const business = usePage().props.business;
+    const businessName = business?.name ?? 'BarPOS';
     const has = (roles) => roles.includes(role);
 
     const ops   = navItems.filter(n => ['dashboard', 'pos.*', 'kitchen.*', 'reservations.*'].includes(n.match));
@@ -172,10 +174,12 @@ function Sidebar({ user, role, meta, navItems, onClose }) {
         <div className="flex h-full flex-col bg-ink-900">
             {/* Logo */}
             <div className="flex items-center gap-3 px-4 py-4 border-b border-ink-800">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brass-600 font-serif text-lg font-semibold text-ink-950">I</div>
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brass-600 font-serif text-lg font-semibold text-ink-950">
+                    {businessName.charAt(0).toUpperCase()}
+                </div>
                 <div className="min-w-0">
-                    <p className="font-bold text-white leading-none tracking-tight truncate">Isaro Rubengera</p>
-                    <p className="text-[10px] text-ink-400 mt-1 uppercase tracking-[0.2em]">Bar &amp; Lodge</p>
+                    <p className="font-bold text-white leading-none tracking-tight truncate">{businessName}</p>
+                    <p className="text-[10px] text-ink-400 mt-1 uppercase tracking-[0.2em]">Restaurant System</p>
                 </div>
                 {onClose && (
                     <button onClick={onClose} className="ml-auto text-ink-500 hover:text-white transition lg:hidden">{I.x}</button>
@@ -247,6 +251,7 @@ function Sidebar({ user, role, meta, navItems, onClose }) {
 export default function AuthenticatedLayout({ header, children }) {
     const user          = usePage().props.auth.user;
     const notifications = usePage().props.notifications ?? [];
+    const businessName = usePage().props.business?.name ?? 'BarPOS';
     const role   = user?.role ?? '';
     const meta   = ROLE_META[role] ?? { label: role, colour: 'bg-ink-500', text: 'text-ink-700', badge: 'bg-ink-100' };
     const [sideOpen, setSideOpen] = useState(false);
@@ -300,8 +305,10 @@ export default function AuthenticatedLayout({ header, children }) {
 
                     {/* Mobile logo */}
                     <div className="flex items-center gap-2 lg:hidden">
-                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-brass-500 font-extrabold text-white text-sm">I</div>
-                        <span className="font-bold text-ink-800 text-sm">Isaro Rubengera</span>
+                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-brass-500 font-extrabold text-white text-sm">
+                            {businessName.charAt(0).toUpperCase()}
+                        </div>
+                        <span className="font-bold text-ink-800 text-sm">{businessName}</span>
                     </div>
 
                     {/* Desktop: page header */}

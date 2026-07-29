@@ -155,6 +155,15 @@ export default function Index({ categories, menuItems, tables, openOrders, today
         router.patch(route('pos.orders.cancel', id), {}, { preserveScroll: true });
     };
 
+    // Bar items never appear on the Kitchen Display — waiters mark their
+    // own drink orders ready straight from here once collected from the bar.
+    const markBarReady = (order) => {
+        const pending = order.items.filter((i) => i.prep_station === 'bar' && i.status === 'new');
+        pending.forEach((item) => {
+            router.patch(route('kitchen.items.ready', item.id), {}, { preserveScroll: true, preserveState: true });
+        });
+    };
+
     return (
         <AuthenticatedLayout header={<h2 className="text-xl font-semibold text-gray-800">Point of Sale</h2>}>
             <Head title="POS" />
@@ -567,14 +576,24 @@ export default function Index({ categories, menuItems, tables, openOrders, today
                                                         </div>
                                                         {stations.length > 0 && (
                                                             <div className="mt-1 flex flex-wrap gap-1.5">
-                                                                {stations.map((s) => (
-                                                                    <span key={s.station}
-                                                                        className={`rounded px-1.5 py-0.5 text-xs font-medium ${
-                                                                            s.ready === s.total ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
-                                                                        }`}>
-                                                                        {s.station === 'kitchen' ? 'Kitchen' : 'Bar'}: {s.ready}/{s.total}
-                                                                    </span>
-                                                                ))}
+                                                                {stations.map((s) => {
+                                                                    const label = s.station === 'kitchen' ? 'Kitchen' : 'Bar';
+                                                                    const done = s.ready === s.total;
+                                                                    const badgeClass = done ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700';
+                                                                    if (s.station === 'bar' && !done) {
+                                                                        return (
+                                                                            <button key={s.station} onClick={() => markBarReady(o)}
+                                                                                className={`rounded px-1.5 py-0.5 text-xs font-bold ${badgeClass} hover:bg-orange-200 transition`}>
+                                                                                {label}: {s.ready}/{s.total} — tap when ready
+                                                                            </button>
+                                                                        );
+                                                                    }
+                                                                    return (
+                                                                        <span key={s.station} className={`rounded px-1.5 py-0.5 text-xs font-medium ${badgeClass}`}>
+                                                                            {label}: {s.ready}/{s.total}
+                                                                        </span>
+                                                                    );
+                                                                })}
                                                             </div>
                                                         )}
                                                     </div>

@@ -75,7 +75,7 @@ return new class extends Migration
             $table->string('zone', 60)->nullable();                      // Indoor, Terrace, Bar
             $table->unsignedTinyInteger('capacity')->default(4);
             $table->enum('status', ['free', 'occupied', 'reserved', 'out_of_service'])->default('free');
-            $table->uuid('qr_token')->nullable()->unique();              // token embedded in the table QR
+            $table->string('qr_token', 40)->nullable()->unique();        // token embedded in the table QR
             $table->timestamps();
             $table->softDeletes();
         });
