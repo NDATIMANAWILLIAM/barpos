@@ -275,57 +275,92 @@ class ReportsController extends Controller
 
         // ── Trend chart (varies by period) ──────────────────────────────────
         if ($period === 'today') {
-            // Hourly for today
-            $trend = collect(range(0, 23))->map(function ($h) {
-                $s = today()->setHour($h);
-                $e = (clone $s)->setHour($h)->setMinute(59)->setSecond(59);
+            // Hourly for today — one query for all of today's paid orders,
+            // bucketed in PHP. The old version ran 2 queries per hour (48
+            // total) which, combined with the similar N+1 below, was the
+            // real cause of the Reports page feeling stuck: 70-90+ separate
+            // round trips to the database on every single page load.
+            $paidInRange = Order::where('status', 'paid')
+                ->whereBetween('created_at', [$start, $end])
+                ->get(['created_at', 'total']);
+
+            $trend = collect(range(0, 23))->map(function ($h) use ($paidInRange) {
+                $matching = $paidInRange->filter(fn ($o) => (int) $o->created_at->format('G') === $h);
                 return [
                     'label'   => str_pad($h, 2, '0', STR_PAD_LEFT) . ':00',
-                    'revenue' => (int) Order::where('status', 'paid')->whereBetween('created_at', [$s, $e])->sum('total'),
-                    'orders'  => (int) Order::where('status', 'paid')->whereBetween('created_at', [$s, $e])->count(),
+                    'revenue' => (int) $matching->sum('total'),
+                    'orders'  => $matching->count(),
                 ];
             });
         } elseif ($period === 'year' || $period === 'all') {
-            // Monthly
-            $trend = collect(range(1, 12))->map(function ($m) use ($start) {
-                $yr = $start->year;
-                $s  = \Carbon\Carbon::create($yr, $m, 1)->startOfDay();
-                $e  = (clone $s)->endOfMonth();
+            $yr = $start->year;
+            $paidInRange = Order::where('status', 'paid')
+                ->whereBetween('created_at', [$start, $end])
+                ->get(['created_at', 'total']);
+
+            $trend = collect(range(1, 12))->map(function ($m) use ($paidInRange, $yr) {
+                $matching = $paidInRange->filter(fn ($o) => $o->created_at->year === $yr && $o->created_at->month === $m);
                 return [
-                    'label'   => $s->format('M'),
-                    'revenue' => (int) Order::where('status', 'paid')->whereBetween('created_at', [$s, $e])->sum('total'),
-                    'orders'  => (int) Order::where('status', 'paid')->whereBetween('created_at', [$s, $e])->count(),
+                    'label'   => \Carbon\Carbon::create($yr, $m, 1)->format('M'),
+                    'revenue' => (int) $matching->sum('total'),
+                    'orders'  => $matching->count(),
                 ];
             });
         } else {
             // Daily for week/month
             $days = $period === 'week' ? 7 : now()->daysInMonth;
-            $trend = collect(range($days - 1, 0))->map(function ($d) {
+            $paidInRange = Order::where('status', 'paid')
+                ->whereBetween('created_at', [today()->subDays($days - 1), $end])
+                ->get(['created_at', 'total']);
+
+            $trend = collect(range($days - 1, 0))->map(function ($d) use ($paidInRange) {
                 $date = today()->subDays($d);
+                $matching = $paidInRange->filter(fn ($o) => $o->created_at->isSameDay($date));
                 return [
                     'label'   => $date->format('D d/M'),
-                    'revenue' => (int) Order::where('status', 'paid')->whereDate('created_at', $date)->sum('total'),
-                    'orders'  => (int) Order::where('status', 'paid')->whereDate('created_at', $date)->count(),
+                    'revenue' => (int) $matching->sum('total'),
+                    'orders'  => $matching->count(),
                 ];
             });
         }
 
         // ── Worker performance ───────────────────────────────────────────────
+        // Same N+1 problem as trend above — was 4 queries per staff member.
+        // Now 3 grouped aggregate queries total, regardless of staff count.
+        $orderStats = Order::whereBetween('created_at', [$start, $end])
+            ->whereNotNull('waiter_id')
+            ->select('waiter_id', DB::raw('COUNT(*) as cnt'), DB::raw("SUM(CASE WHEN status = 'paid' THEN total ELSE 0 END) as rev"))
+            ->groupBy('waiter_id')
+            ->get()
+            ->keyBy('waiter_id');
+
+        $reservationStats = Reservation::whereBetween('created_at', [$start, $end])
+            ->whereNotNull('confirmed_by')
+            ->select('confirmed_by', DB::raw('COUNT(*) as cnt'))
+            ->groupBy('confirmed_by')
+            ->get()
+            ->keyBy('confirmed_by');
+
+        $paymentStats = Payment::where('status', 'confirmed')
+            ->whereBetween('created_at', [$start, $end])
+            ->whereNotNull('cashier_id')
+            ->select('cashier_id', DB::raw('COUNT(*) as cnt'))
+            ->groupBy('cashier_id')
+            ->get()
+            ->keyBy('cashier_id');
+
         $workerPerf = User::where('is_active', true)
             ->whereIn('role', ['owner', 'manager', 'cashier', 'waiter', 'receptionist'])
             ->get(['id', 'name', 'role'])
-            ->map(function ($u) use ($start, $end) {
-                $orders       = Order::where('waiter_id', $u->id)->whereBetween('created_at', [$start, $end])->count();
-                $revenue      = (int) Order::where('waiter_id', $u->id)->whereBetween('created_at', [$start, $end])->where('status', 'paid')->sum('total');
-                $reservations = Reservation::where('confirmed_by', $u->id)->whereBetween('created_at', [$start, $end])->count();
-                $payments     = Payment::where('cashier_id', $u->id)->where('status', 'confirmed')->whereBetween('created_at', [$start, $end])->count();
+            ->map(function ($u) use ($orderStats, $reservationStats, $paymentStats) {
+                $o = $orderStats->get($u->id);
                 return [
                     'name'         => $u->name,
                     'role'         => $u->role,
-                    'orders'       => $orders,
-                    'revenue'      => $revenue,
-                    'reservations' => $reservations,
-                    'payments'     => $payments,
+                    'orders'       => (int) ($o->cnt ?? 0),
+                    'revenue'      => (int) ($o->rev ?? 0),
+                    'reservations' => (int) ($reservationStats->get($u->id)->cnt ?? 0),
+                    'payments'     => (int) ($paymentStats->get($u->id)->cnt ?? 0),
                 ];
             })
             ->filter(fn ($u) => $u['orders'] + $u['reservations'] + $u['payments'] > 0)

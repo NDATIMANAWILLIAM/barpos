@@ -1,5 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router } from '@inertiajs/react';
+import { useState } from 'react';
 
 const rwf = (n) => new Intl.NumberFormat('en-RW').format(n ?? 0) + ' RWF';
 const compact = (n) => new Intl.NumberFormat('en-RW', { notation: 'compact' }).format(n ?? 0);
@@ -158,12 +159,25 @@ function FoodDrinkSplit({ foodTotal, drinkTotal }) {
 const SOURCE_LABEL = { qr_scan: 'QR self-order', phone_call: 'Phone call', walk_in: 'Walk-in' };
 
 export default function Index({ period, revenue, orders, byCategory, foodTotal, drinkTotal, byMethod, bySource, topItems, trend, workerPerf, activity }) {
+    const [loadingPeriod, setLoadingPeriod] = useState(false);
+    const [loadError, setLoadError] = useState(null);
+
     const maxMethod  = Math.max(...(byMethod?.map(m => m.total) ?? []), 1);
     const maxSource  = Math.max(...(bySource?.map(s => s.count) ?? []), 1);
     const maxItemQty = Math.max(...(topItems?.map(i => i.qty) ?? []), 1);
     const today = new Date().toLocaleDateString('en-RW', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
     const periodRevenue = revenue[period] ?? revenue.period ?? 0;
+
+    const switchPeriod = (key) => {
+        setLoadError(null);
+        router.get(route('reports.index'), { period: key }, {
+            preserveScroll: true,
+            onStart: () => setLoadingPeriod(true),
+            onError: () => setLoadError('Could not load that period — the report data failed to come back. Try again, or check your connection.'),
+            onFinish: () => setLoadingPeriod(false),
+        });
+    };
 
     return (
         <AuthenticatedLayout
@@ -194,11 +208,12 @@ export default function Index({ period, revenue, orders, byCategory, foodTotal, 
             <div className="mx-auto max-w-5xl p-4 sm:p-6 space-y-6">
 
                 {/* ── Period tabs ── */}
-                <div className="flex gap-2 overflow-x-auto pb-1 print:hidden">
+                <div className="flex items-center gap-2 overflow-x-auto pb-1 print:hidden">
                     {PERIODS.map(p => (
                         <button key={p.key}
-                            onClick={() => router.get(route('reports.index'), { period: p.key }, { preserveScroll: true })}
-                            className={`rounded-xl px-4 py-2 text-sm font-bold whitespace-nowrap transition-colors ${
+                            disabled={loadingPeriod}
+                            onClick={() => switchPeriod(p.key)}
+                            className={`rounded-xl px-4 py-2 text-sm font-bold whitespace-nowrap transition-colors disabled:opacity-50 disabled:cursor-wait ${
                                 period === p.key
                                     ? 'bg-indigo-600 text-white shadow'
                                     : 'bg-white text-gray-600 ring-1 ring-gray-200 hover:bg-gray-50'
@@ -206,7 +221,24 @@ export default function Index({ period, revenue, orders, byCategory, foodTotal, 
                             {p.label}
                         </button>
                     ))}
+                    {loadingPeriod && (
+                        <span className="flex items-center gap-1.5 text-xs text-gray-400">
+                            <span className="h-3 w-3 animate-spin rounded-full border-2 border-gray-300 border-t-indigo-600" />
+                            Loading…
+                        </span>
+                    )}
                 </div>
+
+                {/* ── Error banner (never leaves the user staring at a blank/stuck screen) ── */}
+                {loadError && (
+                    <div className="flex items-start gap-3 rounded-xl bg-red-50 ring-1 ring-red-200 px-4 py-3 print:hidden">
+                        <span className="text-red-500 font-bold">!</span>
+                        <div className="flex-1 text-sm text-red-700">{loadError}</div>
+                        <button onClick={() => switchPeriod(period)} className="text-xs font-bold text-red-600 hover:underline shrink-0">
+                            Retry
+                        </button>
+                    </div>
+                )}
 
                 {/* ── Revenue overview for selected period ── */}
                 <section>
