@@ -174,9 +174,8 @@ function Sidebar({ user, role, meta, navItems, onClose }) {
         <div className="flex h-full flex-col bg-ink-900">
             {/* Logo */}
             <div className="flex items-center gap-3 px-4 py-4 border-b border-ink-800">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brass-600 font-serif text-lg font-semibold text-ink-950">
-                    {businessName.charAt(0).toUpperCase()}
-                </div>
+                <img src="/images/logo.jpeg" alt={businessName}
+                    className="h-9 w-9 shrink-0 rounded-lg object-cover ring-1 ring-ink-700" />
                 <div className="min-w-0">
                     <p className="font-bold text-white leading-none tracking-tight truncate">{businessName}</p>
                     <p className="text-[10px] text-ink-400 mt-1 uppercase tracking-[0.2em]">Restaurant System</p>
@@ -305,9 +304,7 @@ export default function AuthenticatedLayout({ header, children }) {
 
                     {/* Mobile logo */}
                     <div className="flex items-center gap-2 lg:hidden">
-                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-brass-500 font-extrabold text-white text-sm">
-                            {businessName.charAt(0).toUpperCase()}
-                        </div>
+                        <img src="/images/logo.jpeg" alt={businessName} className="h-7 w-7 rounded-lg object-cover" />
                         <span className="font-bold text-ink-800 text-sm">{businessName}</span>
                     </div>
 

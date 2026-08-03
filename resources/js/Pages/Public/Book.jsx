@@ -105,7 +105,8 @@ export default function Book({ business, contact, tables, minDate, maxDate }) {
 
                 {/* Header */}
                 <div className="bg-ink-950 text-white px-4 py-10 text-center">
-                    <Icon.calendar className="mx-auto mb-2 h-8 w-8 text-brass-400" />
+                    <img src="/images/logo.jpeg" alt={business.name}
+                        className="mx-auto mb-3 h-16 w-16 rounded-xl object-cover ring-1 ring-white/10" />
                     <h1 className="text-2xl font-extrabold">{business.name}</h1>
                     <p className="text-ink-300 mt-1 text-sm">Book a table or request delivery — no account needed</p>
                     {business.address && (

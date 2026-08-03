@@ -57,6 +57,8 @@ export default function Receipt({ order, payment, cashier, business }) {
                     <div className="rounded-2xl bg-white shadow-xl overflow-hidden">
                         {/* Header */}
                         <div className="bg-ink-950 px-6 pt-6 pb-4 text-center text-white">
+                            <img src="/images/logo.jpeg" alt={business?.name ?? 'Logo'}
+                                className="mx-auto mb-2 h-14 w-14 rounded-xl object-cover ring-1 ring-white/10" />
                             <p className="text-xs font-bold uppercase tracking-widest text-brass-400">Official Receipt</p>
                             <h2 className="mt-1 text-2xl font-extrabold">{business?.name ?? 'Isaro Rubengera'}</h2>
                             {business?.address && (

@@ -455,6 +455,8 @@ export default function Menu({ categories, table, business, contact }) {
                 <aside className="hidden lg:flex w-56 shrink-0 flex-col bg-white shadow-md z-10">
                     {/* Brand */}
                     <div className="bg-ink-950 px-5 py-5 text-white">
+                        <img src="/images/logo.jpeg" alt={businessName}
+                            className="mb-3 h-14 w-14 rounded-xl object-cover ring-1 ring-white/10" />
                         <p className="text-xs font-bold uppercase tracking-widest text-brass-400">Welcome to</p>
                         <h1 className="mt-1 text-lg font-extrabold leading-tight">{businessName}</h1>
                         {table && (
@@ -537,6 +539,8 @@ export default function Menu({ categories, table, business, contact }) {
                         <div className="lg:hidden bg-ink-950 px-5 pt-8 pb-12 text-white relative overflow-hidden">
                             <div className="absolute -top-8 -right-8 h-40 w-40 rounded-full bg-brass-500/10 blur-3xl" />
                             <div className="relative">
+                                <img src="/images/logo.jpeg" alt={businessName}
+                                    className="mb-3 h-16 w-16 rounded-xl object-cover ring-1 ring-white/10" />
                                 <p className="text-xs font-bold uppercase tracking-widest text-brass-400">Welcome to</p>
                                 <h1 className="mt-1 text-2xl font-extrabold">{businessName}</h1>
                                 {business?.address && (
