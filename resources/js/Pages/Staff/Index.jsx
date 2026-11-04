@@ -1,3 +1,4 @@
+import PageIntro from '@/Components/PageIntro';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
@@ -63,19 +64,19 @@ function PermissionCheckboxes({ selected, onChange }) {
                         key={p.key}
                         className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition ${
                             active
-                                ? 'border-indigo-400 bg-indigo-50'
+                                ? 'border-brass-400 bg-brass-50'
                                 : 'border-gray-200 bg-white hover:border-gray-300'
                         }`}
                     >
                         <input
                             type="checkbox"
-                            className="mt-0.5 h-4 w-4 rounded accent-indigo-600"
+                            className="mt-0.5 h-4 w-4 rounded accent-brass-600"
                             checked={active}
                             onChange={() => toggle(p.key)}
                         />
                         <div>
-                            <p className={`text-sm font-semibold ${active ? 'text-indigo-700' : 'text-gray-700'}`}>
-                                {p.emoji} {p.label}
+                            <p className={`text-sm font-semibold ${active ? 'text-brass-700' : 'text-gray-700'}`}>
+                                {p.label}
                             </p>
                             <p className="text-xs text-gray-400 mt-0.5">{p.desc}</p>
                         </div>
@@ -113,11 +114,11 @@ function StaffRow({ member, roles, currentUserId }) {
     };
 
     return (
-        <div className="rounded-2xl bg-white ring-1 ring-gray-100 shadow-sm overflow-hidden">
+        <div className="staff-member-card rounded-xl bg-white overflow-hidden">
             {/* Row summary */}
-            <div className="flex items-center gap-3 px-4 py-3">
-                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-lg ${m.bg}`}>
-                    {m.emoji}
+            <div className="staff-row-summary">
+                <div className="staff-member-avatar">
+                    {member.name.charAt(0).toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
@@ -135,7 +136,7 @@ function StaffRow({ member, roles, currentUserId }) {
                             {member.permissions.map(p => {
                                 const ep = EXTRA_PERMS.find(e => e.key === p);
                                 return ep ? (
-                                    <span key={p} className="rounded-full bg-indigo-50 px-2 py-0.5 text-xs text-indigo-600 font-medium">
+                                    <span key={p} className="rounded-full bg-brass-50 px-2 py-0.5 text-xs text-brass-600 font-medium">
                                         +{ep.label}
                                     </span>
                                 ) : null;
@@ -202,7 +203,7 @@ function StaffRow({ member, roles, currentUserId }) {
                             <select className="rounded-lg border-gray-300 text-sm" value={form.data.role}
                                 onChange={(e) => form.setData('role', e.target.value)}>
                                 {Object.entries(roles).map(([key, label]) => (
-                                    <option key={key} value={key}>{ROLE_META[key]?.emoji} {label}</option>
+                                    <option key={key} value={key}>{label}</option>
                                 ))}
                             </select>
                             <p className="mt-1 text-xs text-gray-400">{ROLE_DESC[form.data.role]}</p>
@@ -223,7 +224,7 @@ function StaffRow({ member, roles, currentUserId }) {
 
                     <div className="flex gap-3">
                         <button type="submit" disabled={form.processing}
-                            className="rounded-xl bg-indigo-600 px-5 py-2 text-sm font-bold text-white disabled:opacity-50">
+                            className="rounded-xl bg-brass-600 px-5 py-2 text-sm font-bold text-white disabled:opacity-50">
                             {form.processing ? 'Saving…' : 'Save Changes'}
                         </button>
                         <button type="button" onClick={() => setOpen(false)}
@@ -272,18 +273,19 @@ export default function Index({ staff, roles }) {
                         <p className="text-sm text-gray-500">{activeCount} active · {inactiveCount} inactive</p>
                     </div>
                     <button onClick={() => setShowForm(!showForm)}
-                        className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white hover:bg-indigo-700">
+                        className="rounded-xl bg-brass-600 px-4 py-2 text-sm font-bold text-white hover:bg-brass-700">
                         {showForm ? '✕ Cancel' : '+ Add Staff Member'}
                     </button>
                 </div>
             }
         >
             <Head title="Staff Management" />
-            <div className="mx-auto max-w-4xl p-4 sm:p-6 space-y-5">
+            <div className="management-page staff-page space-y-6">
+                <PageIntro eyebrow="Your team" title="Staff & access" description="Manage staff accounts, responsibilities, and access." />
 
                 {/* ── Add form ── */}
                 {showForm && (
-                    <div className="rounded-2xl bg-white p-6 shadow-lg ring-2 ring-indigo-400 space-y-5">
+                    <div className="rounded-2xl bg-white p-6 shadow-lg ring-2 ring-brass-400 space-y-5">
                         <div>
                             <h3 className="text-lg font-extrabold text-gray-900">New Staff Member</h3>
                             <p className="text-sm text-gray-500 mt-0.5">Fill in their details, pick a role, then grant any extra access they need temporarily.</p>
@@ -324,7 +326,7 @@ export default function Index({ staff, roles }) {
                                     <select className="w-full rounded-lg border-gray-300 text-sm" value={form.data.role}
                                         onChange={(e) => form.setData('role', e.target.value)}>
                                         {Object.entries(roles).map(([key, label]) => (
-                                            <option key={key} value={key}>{ROLE_META[key]?.emoji} {label}</option>
+                                            <option key={key} value={key}>{label}</option>
                                         ))}
                                     </select>
                                     <p className="mt-1.5 text-xs text-gray-400">{ROLE_DESC[form.data.role]}</p>
@@ -354,7 +356,7 @@ export default function Index({ staff, roles }) {
                             </div>
 
                             <button type="submit" disabled={form.processing}
-                                className="rounded-xl bg-indigo-600 px-8 py-3 text-sm font-bold text-white shadow hover:bg-indigo-700 disabled:opacity-50">
+                                className="rounded-xl bg-brass-600 px-8 py-3 text-sm font-bold text-white shadow hover:bg-brass-700 disabled:opacity-50">
                                 {form.processing ? 'Adding…' : '+ Add Staff Member'}
                             </button>
                         </form>
@@ -371,7 +373,7 @@ export default function Index({ staff, roles }) {
                             <p className="text-4xl mb-3">👥</p>
                             <p className="text-gray-500 font-medium">No staff members yet.</p>
                             <button onClick={() => setShowForm(true)}
-                                className="mt-4 rounded-xl bg-indigo-600 px-5 py-2 text-sm font-bold text-white">
+                                className="mt-4 rounded-xl bg-brass-600 px-5 py-2 text-sm font-bold text-white">
                                 Add first staff member
                             </button>
                         </div>

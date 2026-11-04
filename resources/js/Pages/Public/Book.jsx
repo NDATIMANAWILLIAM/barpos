@@ -59,7 +59,7 @@ export default function Book({ business, contact, tables, minDate, maxDate }) {
         return (
             <>
                 <Head title="Request Received" />
-                <div className="min-h-screen bg-ink-50 flex items-center justify-center p-4">
+                <div className="booking-success min-h-screen flex items-center justify-center p-4">
                     <div className="max-w-md w-full text-center space-y-5">
                         <div className="flex justify-center">
                             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-green-500 shadow-lg">
@@ -101,10 +101,10 @@ export default function Book({ business, contact, tables, minDate, maxDate }) {
     return (
         <>
             <Head title={`Book — ${business.name}`} />
-            <div className="min-h-screen bg-ink-50">
+            <div className="booking-page">
 
                 {/* Header */}
-                <div className="bg-ink-950 text-white px-4 py-10 text-center">
+                <div className="booking-intro text-white">
                     <img src="/images/logo.jpeg" alt={business.name}
                         className="mx-auto mb-3 h-16 w-16 rounded-xl object-cover ring-1 ring-white/10" />
                     <h1 className="text-2xl font-extrabold">{business.name}</h1>
@@ -125,8 +125,8 @@ export default function Book({ business, contact, tables, minDate, maxDate }) {
                     )}
                 </div>
 
-                <div className="mx-auto max-w-lg px-4 py-8">
-                    <div className="rounded-2xl bg-white shadow-xl p-6 sm:p-8">
+                <div className="booking-form-wrap">
+                    <div className="booking-form-card">
 
                         {/* ── Type selector ── */}
                         <div className="mb-6">

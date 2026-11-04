@@ -1,5 +1,6 @@
 import { Link, usePage, router } from '@inertiajs/react';
 import { useState, useEffect, useCallback } from 'react';
+import { Dialog, DialogPanel } from '@headlessui/react';
 
 // ── Inline SVG Icons ─────────────────────────────────────────────────────────
 const I = {
@@ -62,7 +63,7 @@ function NotificationBell({ notifications }) {
             {open && (
                 <>
                     <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-                    <div className="absolute right-0 top-10 z-50 w-80 rounded-2xl bg-white shadow-2xl ring-1 ring-ink-100 overflow-hidden">
+                    <div className="fixed inset-x-4 top-20 z-50 rounded-xl bg-white shadow-xl ring-1 ring-ink-100 overflow-hidden lg:absolute lg:inset-x-auto lg:right-0 lg:top-10 lg:w-80">
                         <div className="flex items-center justify-between border-b border-ink-100 px-4 py-2.5">
                             <p className="text-sm font-bold text-ink-800">Notifications</p>
                             {count > 0 && (
@@ -138,115 +139,55 @@ function FlashBanner() {
 // ── Nav Item ─────────────────────────────────────────────────────────────────
 function NavItem({ href, icon, label, active, badge, onClick }) {
     return (
-        <Link href={href} onClick={onClick}
-            className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
-                active ? 'bg-brass-500 text-white shadow-lg shadow-brass-500/25' : 'text-ink-400 hover:bg-ink-800 hover:text-white'
-            }`}>
-            <span className={`shrink-0 transition ${active ? 'text-white' : 'text-ink-500 group-hover:text-ink-300'}`}>{icon}</span>
+        <Link href={href} onClick={onClick} aria-current={active ? 'page' : undefined}
+            className={`workspace-nav-link ${active ? 'is-active' : ''}`}>
+            <span className="workspace-nav-icon">{icon}</span>
             <span className="flex-1 truncate">{label}</span>
-            {badge && <span className="rounded-full bg-red-500 px-1.5 py-0.5 text-xs font-bold text-white">{badge}</span>}
-            {active && <div className="h-1.5 w-1.5 rounded-full bg-white/60" />}
+            {badge && <span className="workspace-nav-badge">{badge}</span>}
+            {active && <span className="workspace-nav-marker" />}
         </Link>
     );
 }
 
-// ── Nav Group ────────────────────────────────────────────────────────────────
-function NavGroup({ label, children }) {
+function Sidebar({ user, meta, navItems, onClose }) {
+    const businessName = usePage().props.business?.name ?? 'BarPOS';
+    const groups = [
+        { key: 'ops', label: 'Daily service' },
+        { key: 'mgmt', label: 'Your business' },
+        { key: 'more', label: 'Help & resources' },
+    ];
     return (
-        <div className="space-y-0.5">
-            <p className="mb-1 px-3 text-[10px] font-bold uppercase tracking-widest text-ink-600">{label}</p>
-            {children}
-        </div>
-    );
-}
-
-// ── Sidebar ───────────────────────────────────────────────────────────────────
-function Sidebar({ user, role, meta, navItems, onClose }) {
-    const business = usePage().props.business;
-    const businessName = business?.name ?? 'BarPOS';
-    const has = (roles) => roles.includes(role);
-
-    const ops   = navItems.filter(n => ['dashboard', 'pos.*', 'kitchen.*', 'reservations.*'].includes(n.match));
-    const mgmt  = navItems.filter(n => ['menu.*', 'tables.*', 'staff.*', 'reports.*', 'settings.*'].includes(n.match));
-    const more  = navItems.filter(n => ['guide'].includes(n.match));
-
-    return (
-        <div className="flex h-full flex-col bg-ink-900">
-            {/* Logo */}
-            <div className="flex items-center gap-3 px-4 py-4 border-b border-ink-800">
-                <img src="/images/logo.jpeg" alt={businessName}
-                    className="h-9 w-9 shrink-0 rounded-lg object-cover ring-1 ring-ink-700" />
-                <div className="min-w-0">
-                    <p className="font-bold text-white leading-none tracking-tight truncate">{businessName}</p>
-                    <p className="text-[10px] text-ink-400 mt-1 uppercase tracking-[0.2em]">Restaurant System</p>
-                </div>
-                {onClose && (
-                    <button onClick={onClose} className="ml-auto text-ink-500 hover:text-white transition lg:hidden">{I.x}</button>
-                )}
+        <div className="workspace-sidebar">
+            <div className="workspace-brand">
+                <img src="/images/logo.jpeg" alt="" />
+                <div><strong>{businessName}</strong><span>Hospitality workspace</span></div>
+                {onClose && <button onClick={onClose} aria-label="Close navigation" className="ml-auto lg:hidden">{I.x}</button>}
             </div>
-
-            {/* Nav */}
-            <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-5">
-                {ops.length > 0 && (
-                    <NavGroup label="Operations">
-                        {ops.map(n => (
-                            <NavItem key={n.match} href={n.href} icon={n.icon} label={n.label} active={route().current(n.match)} onClick={onClose} badge={n.badge} />
-                        ))}
-                    </NavGroup>
-                )}
-                {mgmt.length > 0 && (
-                    <NavGroup label="Management">
-                        {mgmt.map(n => (
-                            <NavItem key={n.match} href={n.href} icon={n.icon} label={n.label} active={route().current(n.match)} onClick={onClose} />
-                        ))}
-                    </NavGroup>
-                )}
-                {more.length > 0 && (
-                    <NavGroup label="Resources">
-                        {more.map(n => (
-                            <NavItem key={n.match} href={n.href} icon={n.icon} label={n.label} active={route().current(n.match)} onClick={onClose} />
-                        ))}
-                    </NavGroup>
-                )}
+            <nav aria-label="Main navigation" className="workspace-navigation">
+                {groups.map(group => {
+                    const items = navItems.filter(n => n.group === group.key);
+                    return items.length > 0 && (
+                        <div className="workspace-nav-group" key={group.key}>
+                            <p>{group.label}</p>
+                            {items.map(n => <NavItem key={n.match} {...n} active={route().current(n.match)} onClick={onClose} />)}
+                        </div>
+                    );
+                })}
             </nav>
-
-            {/* User card */}
-            <div className="border-t border-ink-800 px-3 py-3 space-y-2">
-                {/* Owner badge */}
-                {role === 'owner' && (
-                    <div className="flex items-center gap-1.5 rounded-lg bg-brass-500/10 px-3 py-1.5">
-                        {I.shield}
-                        <span className="text-xs font-bold text-brass-400 uppercase tracking-wide">Full Access · Owner</span>
-                    </div>
-                )}
-                <div className="flex items-center gap-3 rounded-xl bg-ink-800 px-3 py-3">
-                    <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-bold text-sm text-white shadow ${meta.colour}`}>
-                        {user?.name?.charAt(0)?.toUpperCase()}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-semibold text-white">{user?.name}</p>
-                        <span className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-bold mt-0.5 ${meta.badge} ${meta.text}`}>{meta.label}</span>
-                    </div>
+            <div className="workspace-account">
+                <div className="workspace-user">
+                    <span className="workspace-avatar">{user?.name?.charAt(0)?.toUpperCase()}</span>
+                    <div><strong>{user?.name}</strong><span>{meta.label}</span></div>
                 </div>
-                <div className="grid grid-cols-2 gap-1.5">
-                    <Link href={route('profile.edit')} onClick={onClose}
-                        className="flex items-center justify-center gap-1.5 rounded-lg bg-ink-800 py-2 text-xs font-medium text-ink-400 hover:bg-ink-700 hover:text-white transition">
-                        {I.profile} Profile
-                    </Link>
-                    <Link href={route('logout')} method="post" as="button" onClick={onClose}
-                        className="flex items-center justify-center gap-1.5 rounded-lg bg-red-500/10 py-2 text-xs font-medium text-red-400 hover:bg-red-500/20 hover:text-red-300 transition">
-                        {I.logout} Log out
-                    </Link>
+                <div className="workspace-account-actions">
+                    <Link href={route('profile.edit')} onClick={onClose}>{I.profile} Profile</Link>
+                    <Link href={route('logout')} method="post" as="button" onClick={onClose}>{I.logout} Log out</Link>
                 </div>
-                <p className="text-center text-[10px] text-ink-600 px-1">
-                    To switch account: Log out first, then log in with the other account.
-                </p>
             </div>
         </div>
     );
 }
 
-// ── Main Layout ───────────────────────────────────────────────────────────────
 export default function AuthenticatedLayout({ header, children }) {
     const user          = usePage().props.auth.user;
     const notifications = usePage().props.notifications ?? [];
@@ -275,30 +216,30 @@ export default function AuthenticatedLayout({ header, children }) {
     const initial = user?.name?.charAt(0)?.toUpperCase() ?? '?';
 
     return (
-        <div className="flex h-screen overflow-hidden bg-ink-100">
+        <div className="workspace-shell flex h-screen overflow-hidden">
 
             {/* Desktop sidebar */}
-            <aside className="hidden lg:flex w-60 shrink-0">
+            <aside className="workspace-rail hidden lg:flex shrink-0 print:hidden">
                 <Sidebar user={user} role={role} meta={meta} navItems={navItems} />
             </aside>
 
             {/* Mobile sidebar overlay */}
             {sideOpen && (
-                <div className="fixed inset-0 z-50 lg:hidden">
-                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={closeSide} />
-                    <div className="absolute inset-y-0 left-0 w-64 shadow-2xl">
+                <Dialog open={sideOpen} onClose={closeSide} aria-label="Main navigation" className="fixed inset-0 z-50 lg:hidden">
+                    <div className="absolute inset-0 bg-black/40" aria-hidden="true" />
+                    <DialogPanel className="absolute inset-y-0 left-0 w-72 max-w-[85vw] shadow-2xl">
                         <Sidebar user={user} role={role} meta={meta} navItems={navItems} onClose={closeSide} />
-                    </div>
-                </div>
+                    </DialogPanel>
+                </Dialog>
             )}
 
             {/* Content area */}
-            <div className="flex flex-1 flex-col overflow-hidden">
+            <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
 
                 {/* Top bar */}
-                <header className="flex h-14 shrink-0 items-center gap-3 border-b border-ink-200 bg-white px-4 shadow-sm print:hidden">
+                <header className="workspace-topbar flex shrink-0 items-center gap-3 print:hidden">
                     {/* Mobile hamburger */}
-                    <button onClick={() => setSideOpen(true)} className="lg:hidden flex h-9 w-9 items-center justify-center rounded-lg text-ink-500 hover:bg-ink-100 transition">
+                    <button aria-label="Open navigation" aria-expanded={sideOpen} onClick={() => setSideOpen(true)} className="lg:hidden flex h-9 w-9 items-center justify-center rounded-lg text-ink-500 hover:bg-ink-100 transition">
                         {I.bars}
                     </button>
 
@@ -309,7 +250,7 @@ export default function AuthenticatedLayout({ header, children }) {
                     </div>
 
                     {/* Desktop: page header */}
-                    <div className="hidden lg:block text-base font-bold text-ink-800">
+                    <div className="workspace-page-title hidden min-w-0 flex-1 lg:block">
                         {header}
                     </div>
 
@@ -319,7 +260,7 @@ export default function AuthenticatedLayout({ header, children }) {
                             {new Date().toLocaleDateString('en-RW', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
                         </span>
                         <NotificationBell notifications={notifications} />
-                        <div className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white shadow-sm ${meta.colour}`} title={user?.name}>
+                        <div className="workspace-avatar" title={user?.name}>
                             {initial}
                         </div>
                     </div>
@@ -327,7 +268,7 @@ export default function AuthenticatedLayout({ header, children }) {
 
                 {/* Mobile page header */}
                 {header && (
-                    <div className="lg:hidden border-b border-ink-200 bg-white px-4 py-2.5 print:hidden">
+                    <div className="workspace-mobile-heading lg:hidden print:hidden">
                         <div className="text-sm font-bold text-ink-800">{header}</div>
                     </div>
                 )}
@@ -336,7 +277,7 @@ export default function AuthenticatedLayout({ header, children }) {
                 <FlashBanner />
 
                 {/* Page */}
-                <main className="flex-1 overflow-y-auto">
+                <main className="staff-content min-h-0 flex-1 overflow-y-auto">
                     {children}
                 </main>
             </div>

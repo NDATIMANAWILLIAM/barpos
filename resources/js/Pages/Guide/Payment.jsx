@@ -10,8 +10,8 @@ function TabBtn({ active, onClick, emoji, label }) {
             onClick={onClick}
             className={`flex flex-col items-center gap-1 rounded-2xl px-4 py-3 text-center text-xs font-bold transition sm:flex-row sm:gap-2 sm:text-sm ${
                 active
-                    ? 'bg-indigo-600 text-white shadow-md'
-                    : 'bg-white text-gray-600 hover:bg-indigo-50 ring-1 ring-gray-100'
+                    ? 'bg-brass-600 text-white shadow-md'
+                    : 'bg-white text-gray-600 hover:bg-brass-50 ring-1 ring-gray-100'
             }`}
         >
             <span className="text-lg sm:text-xl">{emoji}</span>
@@ -23,7 +23,7 @@ function TabBtn({ active, onClick, emoji, label }) {
 function Step({ n, text }) {
     return (
         <div className="flex items-start gap-3">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-xs font-extrabold text-white">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brass-600 text-xs font-extrabold text-white">
                 {n}
             </span>
             <p className="mt-0.5 text-sm text-gray-700">{text}</p>
@@ -123,16 +123,16 @@ function TabSetup({ appUrl }) {
             </div>
 
             {/* Client booking link */}
-            <div className="rounded-2xl bg-indigo-50 ring-1 ring-indigo-200 p-5">
-                <h3 className="text-base font-extrabold text-indigo-900 mb-2">📅 Client Online Booking</h3>
-                <p className="text-sm text-indigo-800 mb-3">
+            <div className="rounded-2xl bg-brass-50 ring-1 ring-brass-200 p-5">
+                <h3 className="text-base font-extrabold text-brass-900 mb-2">📅 Client Online Booking</h3>
+                <p className="text-sm text-brass-800 mb-3">
                     Share this link with clients so they can book a table themselves — no login needed.
                     Their booking appears in the Reservations page as <strong>Pending</strong> until you confirm it.
                 </p>
-                <div className="rounded-xl bg-white border border-indigo-200 px-4 py-3 font-mono text-sm text-indigo-700 mb-3 break-all">
+                <div className="rounded-xl bg-white border border-brass-200 px-4 py-3 font-mono text-sm text-brass-700 mb-3 break-all">
                     {appUrl}/book
                 </div>
-                <p className="text-xs text-indigo-600">
+                <p className="text-xs text-brass-600">
                     Share via WhatsApp, print on menus, or add to your social media. Clients pick date, time, party size, and any special requests.
                 </p>
             </div>
@@ -200,11 +200,11 @@ function TabQR() {
                     ].map((s, i, arr) => (
                         <div key={i} className="flex gap-3">
                             <div className="flex flex-col items-center">
-                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-lg font-bold text-white">
+                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brass-600 text-lg font-bold text-white">
                                     {s.icon}
                                 </div>
                                 {i < arr.length - 1 && (
-                                    <div className="w-0.5 flex-1 bg-indigo-200 my-1" style={{ minHeight: 20 }} />
+                                    <div className="w-0.5 flex-1 bg-brass-200 my-1" style={{ minHeight: 20 }} />
                                 )}
                             </div>
                             <div className="pb-5 pt-1.5 flex-1">
@@ -301,7 +301,7 @@ function TabManage() {
             key: 'reservations',
             emoji: '📅',
             title: 'How to book / reserve a table',
-            color: 'bg-indigo-50 ring-indigo-200',
+            color: 'bg-brass-50 ring-brass-200',
             steps: [
                 'Click "Reservations" in the sidebar.',
                 'Click "+ New reservation" and fill in guest name, phone, date/time, party size, and optionally pick a table.',
@@ -531,13 +531,13 @@ export default function Payment({ appUrl }) {
     return (
         <>
             <Head title="Isaro Rubengera Guide" />
-            <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 pb-16">
+            <div className="guide-page min-h-screen pb-16">
 
                 {/* Header */}
-                <div className="bg-gradient-to-r from-indigo-700 to-purple-700 px-4 py-10 text-center text-white">
-                    <div className="text-5xl mb-3">📖</div>
+                <div className="guide-header px-4 py-10 text-center text-white">
+                    <p className="mb-3 text-xs uppercase tracking-widest text-brass-300">Staff handbook</p>
                     <h1 className="text-2xl font-extrabold sm:text-3xl">Isaro Rubengera Complete Guide</h1>
-                    <p className="mt-2 text-indigo-200 text-sm">Everything you need to run your bar or guest house</p>
+                    <p className="mt-2 text-brass-200 text-sm">Everything you need to run your bar or guest house</p>
                     <Link href="/" className="mt-4 inline-block rounded-full bg-white/20 px-4 py-1.5 text-sm font-semibold text-white hover:bg-white/30">
                         ← Back to Menu
                     </Link>

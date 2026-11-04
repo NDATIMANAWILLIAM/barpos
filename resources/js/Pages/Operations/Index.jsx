@@ -1,3 +1,4 @@
+import PageIntro from '@/Components/PageIntro';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, useForm } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
@@ -26,21 +27,12 @@ const STATE = {
     urgent:    { label: 'Urgent!',   emoji: '🔴', bg: 'bg-red-50    ring-red-400',    dot: 'bg-red-500',    text: 'text-red-700' },
 };
 
-function SummaryCard({ emoji, label, value, color = 'gray', urgent }) {
-    const colors = {
-        indigo: 'bg-indigo-50 text-indigo-700',
-        green:  'bg-green-50  text-green-700',
-        amber:  'bg-amber-50  text-amber-700',
-        red:    'bg-red-50    text-red-600',
-        teal:   'bg-teal-50   text-teal-700',
-        blue:   'bg-blue-50   text-blue-700',
-        gray:   'bg-gray-50   text-gray-600',
-    };
+function SummaryCard({ label, value, urgent }) {
     return (
-        <div className={`rounded-2xl p-4 ${colors[color]} ${urgent ? 'ring-2 ring-red-400' : ''}`}>
-            <p className="text-2xl mb-1">{emoji}</p>
-            <p className="text-xs font-semibold uppercase tracking-wide opacity-70">{label}</p>
-            <p className="text-2xl font-extrabold mt-0.5">{value}</p>
+        <div className="dashboard-stat operations-stat" data-tone={urgent ? 'red' : 'gray'}>
+            <p className="dashboard-stat-label">{label}</p>
+            <p className="dashboard-stat-value mt-3">{value}</p>
+            {urgent && <span className="dashboard-stat-alert" />}
         </div>
     );
 }
@@ -68,7 +60,7 @@ function AssignPanel({ table, servants, onClose }) {
                     ))}
                 </select>
                 <button type="submit" disabled={form.processing}
-                    className="rounded-lg bg-indigo-600 px-3 py-1 text-xs font-bold text-white disabled:opacity-50">
+                    className="rounded-lg bg-brass-600 px-3 py-1 text-xs font-bold text-white disabled:opacity-50">
                     Save
                 </button>
                 <button type="button" onClick={onClose}
@@ -139,10 +131,10 @@ function TableCard({ table, servants }) {
                     <AssignPanel table={table} servants={servants} onClose={() => setAssigning(false)} />
                 ) : (
                     <button onClick={() => setAssigning(true)}
-                        className="w-full text-left text-xs text-gray-500 hover:text-indigo-600 transition-colors">
+                        className="w-full text-left text-xs text-gray-500 hover:text-brass-600 transition-colors">
                         {table.servant
-                            ? <span>👤 <span className="font-semibold">{table.servant}</span> · <span className="text-indigo-500">Change</span></span>
-                            : <span className="text-indigo-500">+ Assign servant</span>
+                            ? <span>👤 <span className="font-semibold">{table.servant}</span> · <span className="text-brass-500">Change</span></span>
+                            : <span className="text-brass-500">+ Assign servant</span>
                         }
                     </button>
                 )}
@@ -166,7 +158,7 @@ function OrderRow({ o }) {
                     <div className="flex items-center gap-2 flex-wrap">
                         <p className="font-bold text-gray-900 text-sm">#{o.order_number}</p>
                         {o.table && (
-                            <span className="text-xs bg-indigo-100 text-indigo-700 rounded-full px-2 py-0.5 font-semibold">
+                            <span className="text-xs bg-brass-100 text-brass-700 rounded-full px-2 py-0.5 font-semibold">
                                 {o.table}
                             </span>
                         )}
@@ -220,7 +212,8 @@ export default function Index({ tables, orderQueue, pendingBookings, deliveries,
             }
         >
             <Head title="Live Operations" />
-            <div className="mx-auto max-w-6xl p-4 sm:p-6 space-y-6">
+            <div className="management-page operations-page space-y-6">
+                <PageIntro eyebrow="Service overview" title="Live operations" description="Follow orders, bookings, and delivery progress across your team." />
 
                 {/* ── Summary bar ── */}
                 <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
@@ -272,7 +265,7 @@ export default function Index({ tables, orderQueue, pendingBookings, deliveries,
                                     {r.party_size && <p className="text-xs text-gray-600 mt-1.5">👥 {r.party_size} guests</p>}
                                     {r.delivery_address && <p className="text-xs text-gray-600 mt-1.5">📍 {r.delivery_address}</p>}
                                     {r.notes && <p className="text-xs text-gray-500 mt-1 italic">{r.notes}</p>}
-                                    <p className="text-xs text-indigo-600 font-semibold mt-2">
+                                    <p className="text-xs text-brass-600 font-semibold mt-2">
                                         → Open Reservations to confirm after calling
                                     </p>
                                 </div>
@@ -349,7 +342,7 @@ export default function Index({ tables, orderQueue, pendingBookings, deliveries,
                                                         {d.status === 'seated' ? 'Out for delivery' : 'Confirmed'}
                                                     </span>
                                                 </div>
-                                                <a href={`tel:${d.phone}`} className="text-xs text-indigo-600 font-semibold hover:underline">
+                                                <a href={`tel:${d.phone}`} className="text-xs text-brass-600 font-semibold hover:underline">
                                                     📞 {d.phone}
                                                 </a>
                                                 {d.delivery_address && (

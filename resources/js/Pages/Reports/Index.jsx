@@ -1,3 +1,4 @@
+import PageIntro from '@/Components/PageIntro';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router } from '@inertiajs/react';
 import { useState } from 'react';
@@ -37,30 +38,20 @@ const STATUS_COLOR = {
     seated:    'text-green-700',
     delivered: 'text-teal-600',
     cancelled: 'text-red-500',
-    open:      'text-indigo-500',
+    open:      'text-brass-500',
 };
 
-function StatCard({ emoji, label, value, sub, color = 'indigo' }) {
-    const colors = {
-        indigo: 'bg-indigo-50 text-indigo-700',
-        green:  'bg-green-50 text-green-700',
-        amber:  'bg-amber-50 text-amber-700',
-        purple: 'bg-purple-50 text-purple-700',
-        red:    'bg-red-50 text-red-600',
-        gray:   'bg-gray-50 text-gray-600',
-        teal:   'bg-teal-50 text-teal-700',
-    };
+function StatCard({ label, value, sub, color = 'indigo' }) {
     return (
-        <div className={`rounded-2xl p-4 ${colors[color]}`}>
-            <p className="text-2xl mb-1">{emoji}</p>
-            <p className="text-xs font-semibold uppercase tracking-wide opacity-70">{label}</p>
-            <p className="text-xl font-extrabold mt-0.5">{value}</p>
-            {sub && <p className="text-xs opacity-60 mt-0.5">{sub}</p>}
+        <div className="dashboard-stat report-stat" data-tone={color}>
+            <p className="dashboard-stat-label">{label}</p>
+            <p className="dashboard-stat-value mt-4">{value}</p>
+            {sub && <p className="dashboard-stat-sub">{sub}</p>}
         </div>
     );
 }
 
-function MiniBar({ value, max, color = 'bg-indigo-500' }) {
+function MiniBar({ value, max, color = 'bg-brass-500' }) {
     const pct = max > 0 ? Math.round((value / max) * 100) : 0;
     return (
         <div className="h-2 w-full rounded-full bg-gray-100">
@@ -93,7 +84,7 @@ function TrendChart({ trend }) {
                                 {rwf(d.revenue)}<br />{d.orders} order{d.orders !== 1 ? 's' : ''}
                             </div>
                             <div
-                                className={`w-full rounded-t-md transition-all ${d.revenue > 0 ? 'bg-indigo-500 hover:bg-indigo-600' : 'bg-gray-100'}`}
+                                className={`w-full rounded-t-md transition-all ${d.revenue > 0 ? 'bg-brass-500 hover:bg-brass-600' : 'bg-gray-100'}`}
                                 style={{ height: `${Math.max(pct * 112, d.revenue > 0 ? 4 : 0)}px` }}
                             />
                         </div>
@@ -205,7 +196,8 @@ export default function Index({ period, revenue, orders, byCategory, foodTotal, 
                 <p className="text-sm text-gray-500">{today} · Period: {PERIODS.find(p => p.key === period)?.label}</p>
             </div>
 
-            <div className="mx-auto max-w-5xl p-4 sm:p-6 space-y-6">
+            <div className="management-page reports-page space-y-6">
+                <PageIntro eyebrow="Business overview" title="Reports & analytics" description="Review revenue, payment activity, and the items your guests choose." />
 
                 {/* ── Period tabs ── */}
                 <div className="flex items-center gap-2 overflow-x-auto pb-1 print:hidden">
@@ -215,7 +207,7 @@ export default function Index({ period, revenue, orders, byCategory, foodTotal, 
                             onClick={() => switchPeriod(p.key)}
                             className={`rounded-xl px-4 py-2 text-sm font-bold whitespace-nowrap transition-colors disabled:opacity-50 disabled:cursor-wait ${
                                 period === p.key
-                                    ? 'bg-indigo-600 text-white shadow'
+                                    ? 'bg-brass-600 text-white shadow'
                                     : 'bg-white text-gray-600 ring-1 ring-gray-200 hover:bg-gray-50'
                             }`}>
                             {p.label}
@@ -223,7 +215,7 @@ export default function Index({ period, revenue, orders, byCategory, foodTotal, 
                     ))}
                     {loadingPeriod && (
                         <span className="flex items-center gap-1.5 text-xs text-gray-400">
-                            <span className="h-3 w-3 animate-spin rounded-full border-2 border-gray-300 border-t-indigo-600" />
+                            <span className="h-3 w-3 animate-spin rounded-full border-2 border-gray-300 border-t-brass-600" />
                             Loading…
                         </span>
                     )}
@@ -405,7 +397,7 @@ export default function Index({ period, revenue, orders, byCategory, foodTotal, 
                                                         </div>
                                                     </td>
                                                     <td className="px-4 py-3 text-center">
-                                                        <span className="rounded-full bg-indigo-100 text-indigo-700 px-2.5 py-0.5 text-xs font-bold">
+                                                        <span className="rounded-full bg-brass-100 text-brass-700 px-2.5 py-0.5 text-xs font-bold">
                                                             {s.orders}
                                                         </span>
                                                     </td>
@@ -442,7 +434,7 @@ export default function Index({ period, revenue, orders, byCategory, foodTotal, 
                                     <span className="text-lg shrink-0">{a.icon}</span>
                                     <div className="flex-1 min-w-0">
                                         <p className="text-sm font-medium text-gray-800 truncate">{a.text}</p>
-                                        <p className="text-xs font-semibold text-indigo-600 mt-0.5">👤 {a.by}</p>
+                                        <p className="text-xs font-semibold text-brass-600 mt-0.5">👤 {a.by}</p>
                                     </div>
                                     <div className="text-right shrink-0">
                                         <p className="text-xs text-gray-500 font-medium">{fmtTime(a.time)}</p>

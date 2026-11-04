@@ -26,7 +26,7 @@ const SOURCE_COLORS = {
 function SourceBadge({ source }) {
     if (!source) return null;
     return (
-        <span className={`rounded px-1.5 py-0.5 text-xs font-medium ${SOURCE_COLORS[source] ?? 'bg-gray-100 text-gray-600'}`}>
+        <span className={`pos-source-badge rounded px-1.5 py-0.5 text-xs font-medium ${SOURCE_COLORS[source] ?? 'bg-gray-100 text-gray-600'}`}>
             {SOURCE_LABEL[source] ?? source}
         </span>
     );
@@ -43,6 +43,7 @@ export default function Index({ categories, menuItems, tables, openOrders, today
     const [customerPhone, setCustomerPhone] = useState(prefillReservation?.customer_phone ?? '');
     const [notes, setNotes]       = useState(prefillReservation?.notes ?? '');
     const [activeCat, setActiveCat] = useState('all');
+    const [search, setSearch] = useState('');
     const [saving, setSaving]     = useState(false);
     const [ordersTab, setOrdersTab] = useState('open'); // 'open' | 'history'
 
@@ -70,10 +71,13 @@ export default function Index({ categories, menuItems, tables, openOrders, today
         ...categories.map((c) => ({ id: String(c.id), name: c.name })),
     ];
 
-    const visibleItems =
+    const categoryItems =
         activeCat === 'all'
             ? menuItems
             : menuItems.filter((i) => String(i.category_id) === activeCat);
+    const visibleItems = categoryItems.filter((item) =>
+        `${item.name} ${item.description ?? ''}`.toLowerCase().includes(search.trim().toLowerCase())
+    );
 
     // Group visible items by category name
     const groups = {};
@@ -174,26 +178,43 @@ export default function Index({ categories, menuItems, tables, openOrders, today
         <AuthenticatedLayout header={<h2 className="text-xl font-semibold text-gray-800">Point of Sale</h2>}>
             <Head title="POS" />
 
-            <div className="mx-auto max-w-7xl p-4 sm:p-6">
+            <div className="pos-page mx-auto max-w-[1600px] p-4 sm:p-6 xl:px-8">
+                <div className="pos-intro mb-6 flex flex-wrap items-end justify-between gap-4">
+                    <div>
+                        <p className="pos-eyebrow">ORDER ENTRY</p>
+                        <h1 className="mt-1 text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">Create an order</h1>
+                        <p className="mt-1 text-sm text-gray-500">Select items, confirm the details, and send the order to service.</p>
+                    </div>
+                    <div className="pos-live-count"><span className="pos-live-dot" />{openOrders.length} active {openOrders.length === 1 ? 'order' : 'orders'}</div>
+                </div>
                 {prefillReservation && (
                     <div className="mb-4 rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800">
                         <strong>Building order from booking</strong> — {prefillReservation.customer_name}.
                         Add the items they asked for below, then send to kitchen.
                     </div>
                 )}
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                <div className="pos-layout grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.6fr)_minmax(360px,0.9fr)]">
 
                     {/* ── Left: menu browser ── */}
-                    <div className="space-y-4 lg:col-span-2">
+                    <div className="pos-menu space-y-4">
+
+                        <div className="pos-menu-toolbar flex flex-wrap items-center justify-between gap-3">
+                            <div><p className="pos-eyebrow">MENU</p><h2 className="mt-1 text-lg font-semibold text-gray-900">Select items</h2></div>
+                            <label className="pos-search-wrap">
+                                <span aria-hidden="true">⌕</span>
+                                <input aria-label="Search menu" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Find a dish or drink" />
+                                {search && <button type="button" onClick={() => setSearch('')} aria-label="Clear search">×</button>}
+                            </label>
+                        </div>
 
                         {/* Category filter tabs */}
                         {categories.length > 0 && (
-                            <div className="flex flex-wrap gap-2">
+                            <div className="pos-categories flex flex-wrap gap-2">
                                 {catList.map((c) => (
                                     <button
                                         key={c.id}
                                         onClick={() => setActiveCat(c.id)}
-                                        className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+                                        className={`pos-category rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
                                             activeCat === c.id
                                                 ? 'bg-indigo-600 text-white'
                                                 : 'bg-white text-gray-600 shadow hover:bg-indigo-50'
@@ -207,17 +228,17 @@ export default function Index({ categories, menuItems, tables, openOrders, today
 
                         {/* Item grid */}
                         {Object.keys(groups).length === 0 ? (
-                            <div className="rounded-lg bg-white p-8 text-center text-sm text-gray-500 shadow">
-                                No available items.{' '}
+                            <div className="pos-empty rounded-lg bg-white p-8 text-center text-sm text-gray-500 shadow">
+                                {search ? `No menu items match “${search}”.` : 'No available items.'}{' '}
                                 <Link href={route('menu.index')} className="text-indigo-600 hover:underline">
                                     Add some on the Menu page.
                                 </Link>
                             </div>
                         ) : (
                             Object.entries(groups).map(([cat, list]) => (
-                                <div key={cat} className="rounded-lg bg-white p-4 shadow">
+                                <div key={cat} className="pos-category-group rounded-lg bg-white p-4 shadow">
                                     <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
-                                        {cat}
+                                        {cat}<span className="pos-group-count">{list.length} items</span>
                                     </h3>
                                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                                         {list.map((item) => {
@@ -230,12 +251,12 @@ export default function Index({ categories, menuItems, tables, openOrders, today
                                                     onClick={() => addItem(item)}
                                                     className={`relative rounded-lg border p-3 text-left transition-colors ${
                                                         inCart
-                                                            ? 'border-indigo-400 bg-indigo-50'
-                                                            : 'border-gray-200 hover:border-indigo-300 hover:bg-indigo-50'
+                                                            ? 'border-amber-500 bg-amber-50'
+                                                            : 'border-gray-200 hover:border-amber-300 hover:bg-amber-50'
                                                     }`}
                                                 >
                                                     {inCart && (
-                                                        <span className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 text-xs text-white">
+                                                        <span className="pos-item-quantity absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 text-xs text-white">
                                                             {inCart.quantity}
                                                         </span>
                                                     )}
@@ -252,7 +273,7 @@ export default function Index({ categories, menuItems, tables, openOrders, today
                                                             {item.description}
                                                         </div>
                                                     )}
-                                                    <div className="mt-1 text-xs font-semibold text-indigo-600">
+                                                    <div className="mt-1 text-xs font-semibold text-amber-700">
                                                         {rwf(item.price)}
                                                     </div>
                                                 </button>
@@ -265,23 +286,23 @@ export default function Index({ categories, menuItems, tables, openOrders, today
                     </div>
 
                     {/* ── Right: order panel ── */}
-                    <div className="space-y-4">
+                    <div className="pos-aside space-y-4">
 
                         {/* Current order */}
-                        <div className="rounded-lg bg-white p-4 shadow">
+                        <div id="pos-current-order" className="pos-current-order rounded-lg bg-white p-4 shadow">
                             <div className="mb-3 flex items-center justify-between">
-                                <h3 className="font-semibold text-gray-800">Current order</h3>
+                                <div><p className="pos-eyebrow">NEW TICKET</p><h3 className="mt-1 font-semibold text-gray-800">Current order</h3></div>
                                 {cartCount > 0 && (
-                                    <span className="rounded-full bg-indigo-600 px-2 py-0.5 text-xs text-white">
+                                    <span className="pos-cart-count rounded-full bg-indigo-600 px-2 py-0.5 text-xs text-white">
                                         {cartCount} item{cartCount !== 1 ? 's' : ''}
                                     </span>
                                 )}
                             </div>
 
                             {/* Order type + table */}
-                            <div className="mb-3 grid grid-cols-2 gap-2">
+                            <div className="pos-order-details mb-3 grid grid-cols-2 gap-2">
                                 <div>
-                                    <label className="block text-xs text-gray-500">Type</label>
+                                    <label className="block text-xs text-gray-500">Service type</label>
                                     <select
                                         value={type}
                                         onChange={(e) => setType(e.target.value)}
@@ -293,7 +314,7 @@ export default function Index({ categories, menuItems, tables, openOrders, today
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-xs text-gray-500">Table</label>
+                                    <label className="block text-xs text-gray-500">Table / room</label>
                                     <select
                                         value={tableId}
                                         onChange={(e) => setTableId(e.target.value)}
@@ -308,14 +329,14 @@ export default function Index({ categories, menuItems, tables, openOrders, today
                                     </select>
                                 </div>
                                 <div className="col-span-2">
-                                    <label className="block text-xs text-gray-500">How is this order coming in?</label>
+                                    <label className="block text-xs text-gray-500">Order source</label>
                                     <div className="mt-1 grid grid-cols-2 gap-2">
                                         <button type="button" onClick={() => setSource('walk_in')}
-                                            className={`rounded border py-1.5 text-xs font-bold transition ${source === 'walk_in' ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-gray-200 text-gray-500'}`}>
+                                            className={`pos-source-option rounded border py-1.5 text-xs font-bold transition ${source === 'walk_in' ? 'is-selected border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-gray-200 text-gray-500'}`}>
                                             Walk-in / At counter
                                         </button>
                                         <button type="button" onClick={() => setSource('phone_call')}
-                                            className={`rounded border py-1.5 text-xs font-bold transition ${source === 'phone_call' ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-gray-200 text-gray-500'}`}>
+                                            className={`pos-source-option rounded border py-1.5 text-xs font-bold transition ${source === 'phone_call' ? 'is-selected border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-gray-200 text-gray-500'}`}>
                                             Phone call
                                         </button>
                                     </div>
@@ -346,19 +367,17 @@ export default function Index({ categories, menuItems, tables, openOrders, today
 
                             {/* Cart items */}
                             {cart.length === 0 ? (
-                                <p className="py-6 text-center text-sm text-gray-400">
-                                    Tap items on the left to add them.
-                                </p>
+                                <div className="pos-cart-empty"><span aria-hidden="true">＋</span><p>Your order starts here</p><small>Choose an item from the menu to add it.</small></div>
                             ) : (
-                                <><div className="space-y-2">
+                                <div className="space-y-2">
                                     {cart.map((c) => (
                                         <div
                                             key={c._key}
-                                            className={`flex items-center gap-2 text-sm rounded-lg p-1.5 ${!c.menu_item_id ? 'bg-purple-50 ring-1 ring-purple-100' : ''}`}
+                                            className={`pos-cart-line flex items-center gap-2 text-sm rounded-lg p-1.5 ${!c.menu_item_id ? 'bg-purple-50 ring-1 ring-purple-100' : ''}`}
                                         >
                                             <div className="flex-1 min-w-0">
                                                 <div className="truncate font-medium text-gray-800 flex items-center gap-1">
-                                                    {!c.menu_item_id && <span className="text-xs">🛏</span>}
+                                                    {!c.menu_item_id && <span className="pos-room-tag">ROOM / FEE</span>}
                                                     {c.name}
                                                 </div>
                                                 <div className="text-xs text-gray-400">
@@ -368,7 +387,7 @@ export default function Index({ categories, menuItems, tables, openOrders, today
                                             <div className="flex shrink-0 items-center gap-1">
                                                 <button
                                                     onClick={() => changeQty(c._key, -1)}
-                                                    className="flex h-6 w-6 items-center justify-center rounded bg-gray-200 text-gray-700 hover:bg-gray-300"
+                                                    aria-label={`Remove one ${c.name}`} className="pos-qty-button flex h-6 w-6 items-center justify-center rounded bg-gray-200 text-gray-700 hover:bg-gray-300"
                                                 >
                                                     −
                                                 </button>
@@ -377,7 +396,7 @@ export default function Index({ categories, menuItems, tables, openOrders, today
                                                 </span>
                                                 <button
                                                     onClick={() => changeQty(c._key, 1)}
-                                                    className="flex h-6 w-6 items-center justify-center rounded bg-gray-200 text-gray-700 hover:bg-gray-300"
+                                                    aria-label={`Add one ${c.name}`} className="pos-qty-button flex h-6 w-6 items-center justify-center rounded bg-gray-200 text-gray-700 hover:bg-gray-300"
                                                 >
                                                     +
                                                 </button>
@@ -389,69 +408,69 @@ export default function Index({ categories, menuItems, tables, openOrders, today
                                     ))}
                                 </div>
 
-                                {/* Custom / Room charge form */}
-                                {showCustom && (
-                                    <div className="mt-3 rounded-xl bg-purple-50 p-3 ring-1 ring-purple-200 space-y-2">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <span className="text-sm font-bold text-purple-800">Add Custom Charge</span>
-                                            <div className="flex gap-1 ml-auto">
-                                                {[['room','🛏 Room'],['other','+ Other']].map(([m, l]) => (
-                                                    <button key={m} type="button" onClick={() => setCustomMode(m)}
-                                                        className={`rounded-full px-2 py-0.5 text-xs font-bold transition ${customMode === m ? 'bg-purple-600 text-white' : 'bg-white text-purple-500 ring-1 ring-purple-200'}`}>
-                                                        {l}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-                                        <input
-                                            className="w-full rounded-lg border-gray-300 text-sm"
-                                            value={customName}
-                                            onChange={e => setCustomName(e.target.value)}
-                                            placeholder={customMode === 'room' ? 'Room type (e.g. Single Room)' : 'Charge description'}
-                                            autoFocus
-                                        />
-                                        <div className="grid grid-cols-2 gap-2">
-                                            <div>
-                                                <label className="block text-xs text-gray-500 mb-0.5">
-                                                    {customMode === 'room' ? 'Price per night (RWF)' : 'Unit price (RWF)'}
-                                                </label>
-                                                <input type="number" min="0" step="500"
-                                                    className="w-full rounded-lg border-gray-300 text-sm"
-                                                    value={customPrice}
-                                                    onChange={e => setCustomPrice(e.target.value)}
-                                                    placeholder="e.g. 25000" />
-                                            </div>
-                                            <div>
-                                                <label className="block text-xs text-gray-500 mb-0.5">
-                                                    {customMode === 'room' ? 'Number of nights' : 'Quantity'}
-                                                </label>
-                                                <input type="number" min="1"
-                                                    className="w-full rounded-lg border-gray-300 text-sm"
-                                                    value={customMode === 'room' ? customNights : customQty}
-                                                    onChange={e => customMode === 'room'
-                                                        ? setCustomNights(parseInt(e.target.value) || 1)
-                                                        : setCustomQty(parseInt(e.target.value) || 1)
-                                                    } />
-                                            </div>
-                                        </div>
-                                        {customName && customPrice && (
-                                            <p className="text-xs text-purple-600 font-semibold">
-                                                Total: {rwf((parseInt(customPrice) || 0) * (customMode === 'room' ? customNights : customQty))}
-                                            </p>
-                                        )}
-                                        <div className="flex gap-2">
-                                            <button type="button" onClick={addCustomCharge}
-                                                className="flex-1 rounded-lg bg-purple-600 py-1.5 text-xs font-bold text-white hover:bg-purple-700">
-                                                + Add to order
-                                            </button>
-                                            <button type="button" onClick={() => setShowCustom(false)}
-                                                className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs text-gray-500 hover:bg-white">
-                                                Cancel
-                                            </button>
+                            )}
+
+                            {/* Custom / Room charge form */}
+                            {showCustom && (
+                                <div className="pos-custom-charge mt-3 rounded-xl bg-purple-50 p-3 ring-1 ring-purple-200 space-y-2">
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <span className="text-sm font-bold text-purple-800">Add Custom Charge</span>
+                                        <div className="flex gap-1 ml-auto">
+                                            {[['room','Room'],['other','+ Other']].map(([m, l]) => (
+                                                <button key={m} type="button" onClick={() => setCustomMode(m)}
+                                                    className={`rounded-full px-2 py-0.5 text-xs font-bold transition ${customMode === m ? 'bg-purple-600 text-white' : 'bg-white text-purple-500 ring-1 ring-purple-200'}`}>
+                                                    {l}
+                                                </button>
+                                            ))}
                                         </div>
                                     </div>
-                                )}
-                                </>
+                                    <input
+                                        className="w-full rounded-lg border-gray-300 text-sm"
+                                        value={customName}
+                                        onChange={e => setCustomName(e.target.value)}
+                                        placeholder={customMode === 'room' ? 'Room type (e.g. Single Room)' : 'Charge description'}
+                                        autoFocus
+                                    />
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <label className="block text-xs text-gray-500 mb-0.5">
+                                                {customMode === 'room' ? 'Price per night (RWF)' : 'Unit price (RWF)'}
+                                            </label>
+                                            <input type="number" min="0" step="500"
+                                                className="w-full rounded-lg border-gray-300 text-sm"
+                                                value={customPrice}
+                                                onChange={e => setCustomPrice(e.target.value)}
+                                                placeholder="e.g. 25000" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs text-gray-500 mb-0.5">
+                                                {customMode === 'room' ? 'Number of nights' : 'Quantity'}
+                                            </label>
+                                            <input type="number" min="1"
+                                                className="w-full rounded-lg border-gray-300 text-sm"
+                                                value={customMode === 'room' ? customNights : customQty}
+                                                onChange={e => customMode === 'room'
+                                                    ? setCustomNights(parseInt(e.target.value) || 1)
+                                                    : setCustomQty(parseInt(e.target.value) || 1)
+                                                } />
+                                        </div>
+                                    </div>
+                                    {customName && customPrice && (
+                                        <p className="text-xs text-purple-600 font-semibold">
+                                            Total: {rwf((parseInt(customPrice) || 0) * (customMode === 'room' ? customNights : customQty))}
+                                        </p>
+                                    )}
+                                    <div className="flex gap-2">
+                                        <button type="button" onClick={addCustomCharge}
+                                            className="flex-1 rounded-lg bg-purple-600 py-1.5 text-xs font-bold text-white hover:bg-purple-700">
+                                            + Add to order
+                                        </button>
+                                        <button type="button" onClick={() => setShowCustom(false)}
+                                            className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs text-gray-500 hover:bg-white">
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
                             )}
 
                             {/* Add custom / room charge button */}
@@ -459,9 +478,9 @@ export default function Index({ categories, menuItems, tables, openOrders, today
                                 <button
                                     type="button"
                                     onClick={() => setShowCustom(true)}
-                                    className="mt-2 w-full rounded-lg border-2 border-dashed border-purple-200 py-2 text-xs font-semibold text-purple-500 hover:border-purple-400 hover:text-purple-700 hover:bg-purple-50 transition"
+                                    className="pos-add-custom mt-2 w-full rounded-lg border-2 border-dashed border-purple-200 py-2 text-xs font-semibold text-purple-500 hover:border-purple-400 hover:text-purple-700 hover:bg-purple-50 transition"
                                 >
-                                    🛏 Add Room / Custom Charge
+                                    + Add a room or custom charge
                                 </button>
                             )}
 
@@ -481,7 +500,7 @@ export default function Index({ categories, menuItems, tables, openOrders, today
                             )}
 
                             {/* Total + save */}
-                            <div className="mt-4 border-t pt-3">
+                            <div className="pos-checkout mt-4 border-t pt-3">
                                 <div className="flex items-center justify-between">
                                     <span className="text-sm font-semibold text-gray-700">Total</span>
                                     <span className="text-lg font-bold text-gray-900">
@@ -491,7 +510,7 @@ export default function Index({ categories, menuItems, tables, openOrders, today
                                 <button
                                     onClick={saveOrder}
                                     disabled={cart.length === 0 || saving}
-                                    className="mt-3 w-full rounded-lg bg-indigo-600 py-2.5 text-sm font-semibold text-white shadow hover:bg-indigo-700 disabled:opacity-50"
+                                    className="pos-submit mt-3 w-full rounded-lg bg-indigo-600 py-2.5 text-sm font-semibold text-white shadow hover:bg-indigo-700 disabled:opacity-50"
                                 >
                                     {saving ? 'Saving…' : 'Send order to kitchen'}
                                 </button>
@@ -506,161 +525,171 @@ export default function Index({ categories, menuItems, tables, openOrders, today
                             </div>
                         </div>
 
-                        {/* Open orders / history */}
-                        <div className="rounded-lg bg-white p-4 shadow">
-                            <div className="mb-3 flex items-center gap-2">
-                                <button
-                                    onClick={() => setOrdersTab('open')}
-                                    className={`rounded-full px-3 py-1 text-xs font-bold transition ${ordersTab === 'open' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
-                                >
-                                    Open ({openOrders.length})
-                                </button>
-                                <button
-                                    onClick={() => setOrdersTab('history')}
-                                    className={`rounded-full px-3 py-1 text-xs font-bold transition ${ordersTab === 'history' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
-                                >
-                                    Today's History ({todaysOrders.length})
-                                </button>
-                            </div>
 
-                            {ordersTab === 'history' ? (
-                                todaysOrders.length === 0 ? (
-                                    <p className="text-sm text-gray-400">No orders yet today.</p>
-                                ) : (
-                                    <div className="space-y-2">
-                                        {todaysOrders.map((o) => (
-                                            <div key={o.id} className="rounded-lg border border-gray-100 p-3">
-                                                <div className="flex items-start justify-between gap-2">
-                                                    <div className="min-w-0">
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="text-sm font-medium text-gray-800">#{o.order_number}</span>
-                                                            <span className={`rounded px-1.5 py-0.5 text-xs font-medium ${STATUS_COLORS[o.status] ?? 'bg-gray-100 text-gray-600'}`}>
-                                                                {o.status}
-                                                            </span>
-                                                            <SourceBadge source={o.source} />
-                                                        </div>
-                                                        <div className="mt-0.5 text-xs text-gray-400">
-                                                            {fmtTime(o.created_at)}
-                                                            {o.table && ` · ${o.table.label}`}
-                                                            {' · '}
-                                                            {o.waiter?.name ?? 'Client (self-order)'}
-                                                            {o.customer_name && ` for ${o.customer_name}`}
-                                                            {' · '}
-                                                            {o.items.length} item{o.items.length !== 1 ? 's' : ''}
-                                                        </div>
-                                                    </div>
-                                                    <div className="shrink-0 text-right text-sm font-semibold text-gray-800">
-                                                        {rwf(o.total)}
-                                                    </div>
+                    </div>
+                </div>
+                {/* Open orders / history */}
+                <div className="pos-orders-panel rounded-lg bg-white p-4 shadow">
+                    <div className="pos-orders-heading mb-4 flex items-center justify-between gap-2">
+                        <div><p className="pos-eyebrow">SERVICE FLOW</p><h3 className="mt-1 font-semibold text-gray-800">Orders</h3></div>
+                        <div className="pos-order-tabs flex items-center gap-2">
+                        <button
+                            onClick={() => setOrdersTab('open')}
+                            className={`rounded-full px-3 py-1 text-xs font-bold transition ${ordersTab === 'open' ? 'is-selected bg-indigo-600 text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
+                        >
+                            Open ({openOrders.length})
+                        </button>
+                        <button
+                            onClick={() => setOrdersTab('history')}
+                            className={`rounded-full px-3 py-1 text-xs font-bold transition ${ordersTab === 'history' ? 'is-selected bg-indigo-600 text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
+                        >
+                            Today's History ({todaysOrders.length})
+                        </button>
+                        </div>
+                    </div>
+
+                    {ordersTab === 'history' ? (
+                        todaysOrders.length === 0 ? (
+                            <p className="text-sm text-gray-400">No orders yet today.</p>
+                        ) : (
+                            <div className="pos-orders-list grid gap-2">
+                                {todaysOrders.map((o) => (
+                                    <div key={o.id} className="pos-order-card rounded-lg border border-gray-100 p-3">
+                                        <div className="flex items-start justify-between gap-2">
+                                            <div className="min-w-0">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-sm font-medium text-gray-800">#{o.order_number}</span>
+                                                    <span className={`pos-status rounded px-1.5 py-0.5 text-xs font-medium ${STATUS_COLORS[o.status] ?? 'bg-gray-100 text-gray-600'}`}>
+                                                        {o.status}
+                                                    </span>
+                                                    <SourceBadge source={o.source} />
                                                 </div>
-                                                {o.status !== 'paid' && o.status !== 'cancelled' && (
-                                                    <div className="mt-2">
-                                                        <Link
-                                                            href={route('payments.show', o.id)}
-                                                            className="inline-block rounded bg-green-600 px-3 py-1 text-xs font-medium text-white hover:bg-green-700"
-                                                        >
-                                                            Pay
-                                                        </Link>
+                                                <div className="mt-0.5 text-xs text-gray-400">
+                                                    {fmtTime(o.created_at)}
+                                                    {o.table && ` · ${o.table.label}`}
+                                                    {' · '}
+                                                    {o.waiter?.name ?? 'Client (self-order)'}
+                                                    {o.customer_name && ` for ${o.customer_name}`}
+                                                    {' · '}
+                                                    {o.items.length} item{o.items.length !== 1 ? 's' : ''}
+                                                </div>
+                                            </div>
+                                            <div className="shrink-0 text-right text-sm font-semibold text-gray-800">
+                                                {rwf(o.total)}
+                                            </div>
+                                        </div>
+                                        {o.status !== 'paid' && o.status !== 'cancelled' && (
+                                            <div className="pos-order-actions mt-2">
+                                                <Link
+                                                    href={route('payments.show', o.id)}
+                                                    className="inline-block rounded bg-green-600 px-3 py-1 text-xs font-medium text-white hover:bg-green-700"
+                                                >
+                                                    Pay
+                                                </Link>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        )
+                    ) : openOrders.length === 0 ? (
+                        <p className="text-sm text-gray-400">No open orders.</p>
+                    ) : (
+                        <div className="pos-orders-list grid gap-2">
+                            {openOrders.map((o) => {
+                                const readyCount = o.items.filter((i) => i.status === 'ready' || i.status === 'served').length;
+                                const isReady = o.status === 'ready';
+                                const stations = ['kitchen', 'bar'].map((st) => {
+                                    const items = o.items.filter((i) => i.prep_station === st);
+                                    if (items.length === 0) return null;
+                                    const ready = items.filter((i) => i.status === 'ready' || i.status === 'served').length;
+                                    return { station: st, ready, total: items.length };
+                                }).filter(Boolean);
+                                return (
+                                    <div
+                                        key={o.id}
+                                        className={`pos-order-card rounded-lg border p-3 ${
+                                            isReady ? 'border-green-300 bg-green-50 ring-1 ring-green-200' : 'border-gray-100'
+                                        }`}
+                                    >
+                                        <div className="flex items-start justify-between gap-2">
+                                            <div className="min-w-0">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-sm font-medium text-gray-800">
+                                                        #{o.order_number}
+                                                    </span>
+                                                    <span
+                                                        className={`pos-status rounded px-1.5 py-0.5 text-xs font-medium ${
+                                                            STATUS_COLORS[o.status] ??
+                                                            'bg-gray-100 text-gray-600'
+                                                        }`}
+                                                    >
+                                                        {isReady ? 'Ready — bring to table' : o.status}
+                                                    </span>
+                                                    <SourceBadge source={o.source} />
+                                                </div>
+                                                <div className="mt-0.5 text-xs text-gray-400">
+                                                    {o.type.replace('_', ' ')}
+                                                    {o.table && ` · ${o.table.label}`}
+                                                    {o.customer_name && ` · ${o.customer_name}`}
+                                                    {' · '}
+                                                    {readyCount}/{o.items.length} item{o.items.length !== 1 ? 's' : ''} ready
+                                                </div>
+                                                {stations.length > 0 && (
+                                                    <div className="mt-1 flex flex-wrap gap-1.5">
+                                                        {stations.map((s) => {
+                                                            const label = s.station === 'kitchen' ? 'Kitchen' : 'Bar';
+                                                            const done = s.ready === s.total;
+                                                            const badgeClass = done ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700';
+                                                            if (s.station === 'bar' && !done) {
+                                                                return (
+                                                                    <button key={s.station} onClick={() => markBarReady(o)}
+                                                                        className={`rounded px-1.5 py-0.5 text-xs font-bold ${badgeClass} hover:bg-orange-200 transition`}>
+                                                                        {label}: {s.ready}/{s.total} — tap when ready
+                                                                    </button>
+                                                                );
+                                                            }
+                                                            return (
+                                                                <span key={s.station} className={`rounded px-1.5 py-0.5 text-xs font-medium ${badgeClass}`}>
+                                                                    {label}: {s.ready}/{s.total}
+                                                                </span>
+                                                            );
+                                                        })}
                                                     </div>
                                                 )}
                                             </div>
-                                        ))}
-                                    </div>
-                                )
-                            ) : openOrders.length === 0 ? (
-                                <p className="text-sm text-gray-400">No open orders.</p>
-                            ) : (
-                                <div className="space-y-2">
-                                    {openOrders.map((o) => {
-                                        const readyCount = o.items.filter((i) => i.status === 'ready' || i.status === 'served').length;
-                                        const isReady = o.status === 'ready';
-                                        const stations = ['kitchen', 'bar'].map((st) => {
-                                            const items = o.items.filter((i) => i.prep_station === st);
-                                            if (items.length === 0) return null;
-                                            const ready = items.filter((i) => i.status === 'ready' || i.status === 'served').length;
-                                            return { station: st, ready, total: items.length };
-                                        }).filter(Boolean);
-                                        return (
-                                            <div
-                                                key={o.id}
-                                                className={`rounded-lg border p-3 ${
-                                                    isReady ? 'border-green-300 bg-green-50 ring-1 ring-green-200' : 'border-gray-100'
-                                                }`}
-                                            >
-                                                <div className="flex items-start justify-between gap-2">
-                                                    <div className="min-w-0">
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="text-sm font-medium text-gray-800">
-                                                                #{o.order_number}
-                                                            </span>
-                                                            <span
-                                                                className={`rounded px-1.5 py-0.5 text-xs font-medium ${
-                                                                    STATUS_COLORS[o.status] ??
-                                                                    'bg-gray-100 text-gray-600'
-                                                                }`}
-                                                            >
-                                                                {isReady ? 'Ready — bring to table' : o.status}
-                                                            </span>
-                                                            <SourceBadge source={o.source} />
-                                                        </div>
-                                                        <div className="mt-0.5 text-xs text-gray-400">
-                                                            {o.type.replace('_', ' ')}
-                                                            {o.table && ` · ${o.table.label}`}
-                                                            {o.customer_name && ` · ${o.customer_name}`}
-                                                            {' · '}
-                                                            {readyCount}/{o.items.length} item{o.items.length !== 1 ? 's' : ''} ready
-                                                        </div>
-                                                        {stations.length > 0 && (
-                                                            <div className="mt-1 flex flex-wrap gap-1.5">
-                                                                {stations.map((s) => {
-                                                                    const label = s.station === 'kitchen' ? 'Kitchen' : 'Bar';
-                                                                    const done = s.ready === s.total;
-                                                                    const badgeClass = done ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700';
-                                                                    if (s.station === 'bar' && !done) {
-                                                                        return (
-                                                                            <button key={s.station} onClick={() => markBarReady(o)}
-                                                                                className={`rounded px-1.5 py-0.5 text-xs font-bold ${badgeClass} hover:bg-orange-200 transition`}>
-                                                                                {label}: {s.ready}/{s.total} — tap when ready
-                                                                            </button>
-                                                                        );
-                                                                    }
-                                                                    return (
-                                                                        <span key={s.station} className={`rounded px-1.5 py-0.5 text-xs font-medium ${badgeClass}`}>
-                                                                            {label}: {s.ready}/{s.total}
-                                                                        </span>
-                                                                    );
-                                                                })}
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                    <div className="shrink-0 text-right">
-                                                        <div className="text-sm font-semibold text-gray-800">
-                                                            {rwf(o.total)}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className="mt-2 flex gap-2">
-                                                    <Link
-                                                        href={route('payments.show', o.id)}
-                                                        className="flex-1 rounded bg-green-600 py-1 text-center text-xs font-medium text-white hover:bg-green-700"
-                                                    >
-                                                        Pay
-                                                    </Link>
-                                                    <button
-                                                        onClick={() => cancelOrder(o.id)}
-                                                        className="rounded border border-gray-200 px-3 py-1 text-xs text-gray-500 hover:bg-gray-50"
-                                                    >
-                                                        Cancel
-                                                    </button>
+                                            <div className="shrink-0 text-right">
+                                                <div className="text-sm font-semibold text-gray-800">
+                                                    {rwf(o.total)}
                                                 </div>
                                             </div>
-                                        );
-                                    })}
-                                </div>
-                            )}
+                                        </div>
+                                        <div className="pos-order-actions mt-2 flex gap-2">
+                                            <Link
+                                                href={route('payments.show', o.id)}
+                                                className="flex-1 rounded bg-green-600 py-1 text-center text-xs font-medium text-white hover:bg-green-700"
+                                            >
+                                                Pay
+                                            </Link>
+                                            <button
+                                                onClick={() => cancelOrder(o.id)}
+                                                className="rounded border border-gray-200 px-3 py-1 text-xs text-gray-500 hover:bg-gray-50"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </div>
+                                );
+                            })}
                         </div>
-                    </div>
+                    )}
                 </div>
+                {cartCount > 0 && (
+                    <a href="#pos-current-order" className="pos-mobile-cart xl:hidden">
+                        <span><strong>{cartCount}</strong> {cartCount === 1 ? 'item' : 'items'} in order</span>
+                        <span>{rwf(cartTotal)} <b>Review order ↓</b></span>
+                    </a>
+                )}
             </div>
         </AuthenticatedLayout>
     );

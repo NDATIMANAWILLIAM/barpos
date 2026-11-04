@@ -1,18 +1,26 @@
-import ApplicationLogo from '@/Components/ApplicationLogo';
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 
 export default function GuestLayout({ children }) {
+    const businessName = usePage().props.business?.name ?? 'Isaro Rubengera';
     return (
-        <div className="flex min-h-screen flex-col items-center bg-gray-100 pt-6 sm:justify-center sm:pt-0">
-            <div>
-                <Link href="/">
-                    <ApplicationLogo className="h-20 w-20 fill-current text-gray-500" />
-                </Link>
-            </div>
-
-            <div className="mt-6 w-full overflow-hidden bg-white px-6 py-4 shadow-md sm:max-w-md sm:rounded-lg">
-                {children}
-            </div>
+        <div className="auth-layout">
+            <aside className="auth-story">
+                <Link href="/" className="auth-brand"><img src="/images/logo.jpeg" alt="" /><span>{businessName}</span></Link>
+                <div>
+                    <p className="ui-eyebrow">Hospitality, together.</p>
+                    <h1>Good service<br />starts here.</h1>
+                    <p>Your tables, your team, and every guest.<br />One place to keep the day moving.</p>
+                </div>
+                <span className="auth-story-footer">Restaurant &amp; lodge management</span>
+            </aside>
+            <main className="auth-main">
+                <Link href="/" className="auth-back">Back to the menu</Link>
+                <div className="auth-form-card">
+                    <p className="ui-eyebrow">{businessName} / Staff access</p>
+                    {children}
+                </div>
+                <p className="auth-footer">A little more care. Every service.</p>
+            </main>
         </div>
     );
 }

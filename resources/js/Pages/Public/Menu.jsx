@@ -8,8 +8,8 @@ const rwf = (n) => 'RWF ' + new Intl.NumberFormat('en-RW').format(n ?? 0);
 // icons — one letter, drawn from the category's own name.
 const CAT_COLOURS = [
     'bg-brass-50 text-brass-700', 'bg-orange-50 text-orange-700',
-    'bg-green-50 text-green-700', 'bg-blue-50 text-blue-700',
-    'bg-purple-50 text-purple-700', 'bg-rose-50 text-rose-700',
+    'bg-green-50 text-green-700', 'bg-ink-100 text-ink-700',
+    'bg-ink-50 text-ink-700', 'bg-brass-50 text-brass-700',
     'bg-cyan-50 text-cyan-700', 'bg-teal-50 text-teal-700',
 ];
 const catMonogram = (name) => (name ?? '?').trim().charAt(0).toUpperCase();
@@ -43,40 +43,28 @@ const QtyBtn = memo(({ qty, onAdd, onRemove, compact }) => {
     );
     return (
         <div className={`flex items-center gap-2 rounded-full bg-white ring-2 ring-brass-400 shadow-sm ${compact ? 'px-2 py-0.5' : 'px-3 py-1.5'}`}>
-            <button onClick={onRemove} className={`flex items-center justify-center rounded-full bg-brass-50 font-bold text-brass-600 hover:bg-red-50 hover:text-red-500 transition ${compact ? 'h-5 w-5 text-sm' : 'h-7 w-7 text-lg'}`}>−</button>
+            <button aria-label="Decrease quantity" onClick={onRemove} className={`flex items-center justify-center rounded-full bg-brass-50 font-bold text-brass-600 hover:bg-red-50 hover:text-red-500 transition ${compact ? 'h-5 w-5 text-sm' : 'h-7 w-7 text-lg'}`}>−</button>
             <span className={`font-extrabold text-brass-700 text-center ${compact ? 'w-4 text-xs' : 'w-5 text-sm'}`}>{qty}</span>
-            <button onClick={onAdd} className={`flex items-center justify-center rounded-full bg-brass-500 font-bold text-white hover:bg-brass-600 transition ${compact ? 'h-5 w-5 text-sm' : 'h-7 w-7 text-lg'}`}>+</button>
+            <button aria-label="Increase quantity" onClick={onAdd} className={`flex items-center justify-center rounded-full bg-brass-500 font-bold text-white hover:bg-brass-600 transition ${compact ? 'h-5 w-5 text-sm' : 'h-7 w-7 text-lg'}`}>+</button>
         </div>
     );
 });
 
 // ── Item Card ────────────────────────────────────────────────────────────────
-const ItemCard = memo(({ item, qty, colourClass, onAdd, onRemove }) => (
-    <div className="flex gap-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-ink-100 transition hover:shadow-md hover:ring-brass-200 group">
-        <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl font-serif text-lg font-semibold shadow-sm ${colourClass}`}>
-            {catMonogram(item.category_name)}
+const ItemCard = memo(({ item, qty, onAdd, onRemove }) => (
+    <article className="guest-menu-item">
+        <div className="guest-item-heading">
+            <h3>{item.name}</h3>
+            {item.is_special && <span className="guest-item-special">House special</span>}
         </div>
-        <div className="flex min-w-0 flex-1 flex-col">
-            <div className="flex flex-wrap items-start gap-1.5">
-                <span className="text-sm font-semibold text-ink-900 leading-snug">{item.name}</span>
-                {item.is_special && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-brass-100 px-2 py-0.5 text-xs font-bold text-brass-700">
-                        <Icon.star className="h-3 w-3" /> Special
-                    </span>
-                )}
-            </div>
-            {item.description && (
-                <p className="mt-0.5 text-xs text-ink-400 line-clamp-2 leading-snug">{item.description}</p>
-            )}
-            <div className="mt-2 flex items-center justify-between gap-2">
-                <span className="text-base font-extrabold text-brass-600">{rwf(item.price)}</span>
-                <QtyBtn qty={qty} onAdd={onAdd} onRemove={onRemove} />
-            </div>
+        {item.description && <p className="guest-item-description">{item.description}</p>}
+        <div className="guest-item-footer">
+            <span>{rwf(item.price)}</span>
+            <QtyBtn qty={qty} onAdd={onAdd} onRemove={onRemove} />
         </div>
-    </div>
+    </article>
 ));
 
-// ── Cart Item Row (for sidebar + drawer) ────────────────────────────────────
 const CartRow = memo(({ item, qty, onAdd, onRemove }) => (
     <div className="flex items-center gap-3 py-2.5">
         <div className="min-w-0 flex-1">
@@ -446,13 +434,13 @@ export default function Menu({ categories, table, business, contact }) {
     const total = useMemo(() => cartTotal(cart, itemMap), [cart, itemMap]);
 
     return (
-        <>
+        <div className="guest-experience">
             <Head title={`Menu — ${businessName}`} />
 
-            <div className="flex h-screen flex-col overflow-hidden bg-ink-50 lg:flex-row">
+            <div className="guest-shell flex h-screen flex-col overflow-hidden lg:flex-row">
 
                 {/* ── DESKTOP: Left Category Sidebar ─────────────────────── */}
-                <aside className="hidden lg:flex w-56 shrink-0 flex-col bg-white shadow-md z-10">
+                <aside className="guest-categories hidden lg:flex shrink-0 flex-col bg-white z-10">
                     {/* Brand */}
                     <div className="bg-ink-950 px-5 py-5 text-white">
                         <img src="/images/logo.jpeg" alt={businessName}
@@ -533,11 +521,15 @@ export default function Menu({ categories, table, business, contact }) {
                 <div className="flex flex-1 flex-col overflow-hidden lg:flex-row">
 
                     {/* ── Center: Menu Items ── */}
-                    <main ref={mainRef} className="flex-1 overflow-y-auto">
+                    <main ref={mainRef} className="guest-menu-main flex-1 overflow-y-auto">
+                        <header className="guest-menu-intro hidden lg:block">
+                            <p className="ui-eyebrow">From our kitchen &amp; bar</p>
+                            <h2>Made for good company.</h2>
+                            <p>{table ? `Settle in at table ${table.label}. Choose your favourites and we will take care of the rest.` : 'Browse our food and drinks. Scan the QR code at your table to order, or contact us to plan your visit.'}</p>
+                        </header>
 
                         {/* Mobile Hero */}
-                        <div className="lg:hidden bg-ink-950 px-5 pt-8 pb-12 text-white relative overflow-hidden">
-                            <div className="absolute -top-8 -right-8 h-40 w-40 rounded-full bg-brass-500/10 blur-3xl" />
+                        <div className="guest-mobile-hero lg:hidden px-5 pt-8 pb-12 text-white relative overflow-hidden">
                             <div className="relative">
                                 <img src="/images/logo.jpeg" alt={businessName}
                                     className="mb-3 h-16 w-16 rounded-xl object-cover ring-1 ring-white/10" />
@@ -613,7 +605,7 @@ export default function Menu({ categories, table, business, contact }) {
                         </div>
 
                         {/* Desktop category strip */}
-                        <div className="hidden lg:block sticky top-0 z-20 bg-white/95 shadow-sm backdrop-blur border-b px-6 py-3">
+                        <div className="guest-category-strip hidden lg:block sticky top-0 z-20 bg-white/95 backdrop-blur border-b px-6 py-3">
                             <div className="flex items-center gap-2">
                                 <span className="text-xs font-bold uppercase tracking-wide text-ink-400 mr-2">Category</span>
                                 {filtered.map((c) => (
@@ -625,7 +617,7 @@ export default function Menu({ categories, table, business, contact }) {
                             </div>
                         </div>
 
-                        <div className="p-4 lg:px-6 lg:py-5 space-y-8">
+                        <div className="guest-menu-content space-y-8">
 
                             {/* QR scan prompt (mobile, no table) */}
                             {!table && (
@@ -757,7 +749,7 @@ export default function Menu({ categories, table, business, contact }) {
                     </main>
 
                     {/* ── Right: Desktop Cart Panel ── */}
-                    <aside className="hidden lg:flex w-80 shrink-0 flex-col border-l border-ink-100 bg-white shadow-lg">
+                    <aside className="guest-cart-panel hidden lg:flex shrink-0 flex-col border-l bg-white">
                         <DesktopCart cart={cart} setCart={setCart} itemMap={itemMap} table={table} />
                     </aside>
                 </div>
@@ -781,6 +773,6 @@ export default function Menu({ categories, table, business, contact }) {
             {showDrawer && (
                 <CartDrawer cart={cart} setCart={setCart} itemMap={itemMap} table={table} onClose={() => setShowDrawer(false)} />
             )}
-        </>
+        </div>
     );
 }

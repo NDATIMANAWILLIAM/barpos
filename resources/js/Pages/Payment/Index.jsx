@@ -1,3 +1,4 @@
+import PageIntro from '@/Components/PageIntro';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
@@ -321,18 +322,19 @@ export default function Index({ order, paymentMethods }) {
         <AuthenticatedLayout
             header={
                 <div className="flex items-center gap-4">
-                    <Link href={route('pos.index')} className="text-sm text-indigo-600 hover:underline">
+                    <Link href={route('pos.index')} className="text-sm text-brass-600 hover:underline">
                         ← POS
                     </Link>
                     <h2 className="text-xl font-semibold text-gray-800">
-                        Payment — Order <span className="font-mono text-indigo-600">#{order.order_number}</span>
+                        Payment — Order <span className="font-mono text-brass-600">#{order.order_number}</span>
                     </h2>
                 </div>
             }
         >
             <Head title={`Pay #${order.order_number}`} />
 
-            <div className="mx-auto max-w-4xl p-4 sm:p-6">
+            <div className="management-page payment-page space-y-6">
+                <PageIntro eyebrow="Checkout" title="Complete the payment" description="Review the order, choose a payment method, and issue a receipt." />
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
 
                     {/* ── Left: Order summary (2/5) ── */}
@@ -374,7 +376,7 @@ export default function Index({ order, paymentMethods }) {
                             </div>
 
                             {/* Big total */}
-                            <div className="mt-4 rounded-xl bg-gray-900 px-5 py-4 text-center text-white">
+                            <div className="payment-total mt-4 rounded-xl bg-ink-900 px-5 py-4 text-white">
                                 <p className="text-xs uppercase tracking-widest text-gray-400">Total due</p>
                                 <p className="mt-1 text-4xl font-bold">{rwf(order.total)}</p>
                             </div>

@@ -1,3 +1,4 @@
+import PageIntro from '@/Components/PageIntro';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, router } from '@inertiajs/react';
 import { useState, useRef } from 'react';
@@ -111,10 +112,11 @@ export default function Index({ categories, items }) {
         <AuthenticatedLayout header={<h2 className="text-xl font-semibold text-gray-800">Menu Management</h2>}>
             <Head title="Menu" />
 
-            <div className="mx-auto max-w-5xl space-y-6 p-4 sm:p-6">
+            <div className="management-page menu-page">
+                <PageIntro eyebrow="Menu & categories" title="Menu management" description="Manage dishes, drinks, prices, and availability in one place." />
 
                 {/* ── Add category ── */}
-                <div className="rounded-lg bg-white p-5 shadow">
+                <div className="menu-category-editor rounded-lg bg-white p-5 shadow">
                     <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
                         Add a category
                     </h3>
@@ -154,15 +156,15 @@ export default function Index({ categories, items }) {
                 {/* ── Add / Edit item ── */}
                 <div
                     ref={formRef}
-                    className={`rounded-lg bg-white p-5 shadow transition-all ${
-                        editingItem ? 'ring-2 ring-indigo-400' : ''
+                    className={`menu-item-editor rounded-lg bg-white p-5 shadow transition-all ${
+                        editingItem ? 'ring-2 ring-brass-400' : ''
                     }`}
                 >
                     <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
                         {editingItem ? (
                             <span>
                                 Editing:{' '}
-                                <span className="text-indigo-600">{editingItem.name}</span>
+                                <span className="text-brass-600">{editingItem.name}</span>
                             </span>
                         ) : (
                             'Add a menu item'
@@ -266,7 +268,7 @@ export default function Index({ categories, items }) {
 
                             <div className="flex gap-3 sm:col-span-2">
                                 <button
-                                    className="rounded bg-indigo-600 px-5 py-2 text-sm text-white disabled:opacity-50"
+                                    className="rounded bg-brass-600 px-5 py-2 text-sm text-white disabled:opacity-50"
                                     disabled={itemForm.processing}
                                 >
                                     {editingItem ? 'Save changes' : 'Add item'}
@@ -287,11 +289,11 @@ export default function Index({ categories, items }) {
 
                 {/* ── Category / item list ── */}
                 {categories.length === 0 ? (
-                    <div className="rounded-lg bg-white p-8 text-center text-sm text-gray-400 shadow">
+                    <div className="menu-catalog rounded-lg bg-white p-8 text-center text-sm text-gray-400 shadow">
                         No categories yet. Add one above to get started.
                     </div>
                 ) : (
-                    <div className="space-y-6">
+                    <div className="menu-catalog space-y-6">
                         {categories.map((cat) => {
                             const catItems = items.filter((i) => i.category_id === cat.id);
                             const isEditing = editingCatId === cat.id;
@@ -324,7 +326,7 @@ export default function Index({ categories, items }) {
                                                     <option value="drink">Drink</option>
                                                 </select>
                                                 <button
-                                                    className="rounded bg-indigo-600 px-3 py-1 text-xs text-white disabled:opacity-50"
+                                                    className="rounded bg-brass-600 px-3 py-1 text-xs text-white disabled:opacity-50"
                                                     disabled={editCatForm.processing}
                                                 >
                                                     Save
@@ -366,7 +368,7 @@ export default function Index({ categories, items }) {
                                             <div className="flex gap-3">
                                                 <button
                                                     onClick={() => startEditCat(cat)}
-                                                    className="text-xs text-indigo-600 hover:underline"
+                                                    className="text-xs text-brass-600 hover:underline"
                                                 >
                                                     Edit
                                                 </button>
@@ -409,7 +411,7 @@ export default function Index({ categories, items }) {
                                                             key={item.id}
                                                             className={`border-b last:border-0 ${
                                                                 editingItem?.id === item.id
-                                                                    ? 'bg-indigo-50'
+                                                                    ? 'bg-brass-50'
                                                                     : ''
                                                             }`}
                                                         >
@@ -451,7 +453,7 @@ export default function Index({ categories, items }) {
                                                             <td className="py-2 text-right">
                                                                 <button
                                                                     onClick={() => startEditItem(item)}
-                                                                    className="mr-3 text-xs text-indigo-600 hover:underline"
+                                                                    className="mr-3 text-xs text-brass-600 hover:underline"
                                                                 >
                                                                     Edit
                                                                 </button>

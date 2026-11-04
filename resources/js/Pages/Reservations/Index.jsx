@@ -1,3 +1,4 @@
+import PageIntro from '@/Components/PageIntro';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm, router } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
@@ -115,7 +116,7 @@ function ReservationCard({ reservation: r, onDelete, tables }) {
                         {/* kind badge */}
                         {isDelivery
                             ? <span className="rounded-full bg-orange-100 text-orange-700 px-2 py-0.5 text-xs font-bold">🚚 Delivery</span>
-                            : <span className="rounded-full bg-indigo-100 text-indigo-700 px-2 py-0.5 text-xs font-bold">🪑 Dine-in</span>
+                            : <span className="rounded-full bg-brass-100 text-brass-700 px-2 py-0.5 text-xs font-bold">🪑 Dine-in</span>
                         }
                         {/* status badge */}
                         <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${STATUS_STYLES[r.status] ?? 'bg-gray-100 text-gray-500'}`}>
@@ -139,7 +140,7 @@ function ReservationCard({ reservation: r, onDelete, tables }) {
                         <span>📅 {fmt(r.scheduled_at)}</span>
                         {r.party_size && <span>👥 {r.party_size} guest{r.party_size !== 1 ? 's' : ''}</span>}
                         {!isDelivery && r.table && <span>🪑 {r.table}</span>}
-                        <a href={`tel:${r.phone}`} className="text-indigo-600 font-medium hover:underline">📞 {r.phone}</a>
+                        <a href={`tel:${r.phone}`} className="text-brass-600 font-medium hover:underline">📞 {r.phone}</a>
                     </div>
 
                     {/* Delivery address */}
@@ -171,7 +172,7 @@ function ReservationCard({ reservation: r, onDelete, tables }) {
                     {r.status === 'pending' && (
                         <button
                             onClick={() => setConfirmOpen(!confirmOpen)}
-                            className="rounded-xl bg-indigo-600 px-4 py-2 text-xs font-bold text-white hover:bg-indigo-700 shadow"
+                            className="rounded-xl bg-brass-600 px-4 py-2 text-xs font-bold text-white hover:bg-brass-700 shadow"
                         >
                             {confirmOpen ? '✕ Close' : '📞 Call & Confirm'}
                         </button>
@@ -251,7 +252,7 @@ function ReservationCard({ reservation: r, onDelete, tables }) {
                                 onChange={e => setAgreedPrice(e.target.value)}
                             />
                             {!isDelivery && agreedPrice && (
-                                <p className="mt-1 text-xs text-indigo-700 font-semibold">
+                                <p className="mt-1 text-xs text-brass-700 font-semibold">
                                     50% deposit = RWF {deposit.toLocaleString()}
                                 </p>
                             )}
@@ -341,7 +342,7 @@ function ReservationCard({ reservation: r, onDelete, tables }) {
                                         <div className="flex items-center justify-between mb-1.5">
                                             <span className="text-xs font-bold text-gray-700">#{o.order_number}</span>
                                             <div className="flex items-center gap-2">
-                                                <span className="rounded-full bg-indigo-100 text-indigo-700 px-2 py-0.5 text-xs font-semibold capitalize">{o.status}</span>
+                                                <span className="rounded-full bg-brass-100 text-brass-700 px-2 py-0.5 text-xs font-semibold capitalize">{o.status}</span>
                                                 <span className="text-xs font-bold text-gray-800">{rwf(o.total)}</span>
                                                 <Link href={route('payments.show', o.id)}
                                                     className="rounded-lg bg-green-600 px-2.5 py-0.5 text-xs font-bold text-white hover:bg-green-700">
@@ -435,7 +436,7 @@ export default function Index({ reservations, tables }) {
                         )}
                     </div>
                     <button onClick={() => setShowForm(!showForm)}
-                        className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
+                        className="rounded-xl bg-brass-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brass-700">
                         {showForm ? 'Cancel' : '+ New'}
                     </button>
                 </div>
@@ -443,7 +444,8 @@ export default function Index({ reservations, tables }) {
         >
             <Head title="Reservations" />
 
-            <div className="mx-auto max-w-4xl space-y-5 p-4 sm:p-6">
+            <div className="management-page reservations-page space-y-6">
+                <PageIntro eyebrow="Guest services" title="Reservations & deliveries" description="Follow every request from the first call to the final confirmation." />
 
                 {/* ── Status pipeline overview ── */}
                 <div className="grid grid-cols-4 gap-2 text-center">
@@ -477,7 +479,7 @@ export default function Index({ reservations, tables }) {
 
                 {/* ── New reservation form (staff creates) ── */}
                 {showForm && (
-                    <div className="rounded-2xl bg-white p-5 shadow ring-2 ring-indigo-300">
+                    <div className="rounded-2xl bg-white p-5 shadow ring-2 ring-brass-300">
                         <h3 className="mb-4 text-sm font-bold uppercase tracking-wide text-gray-500">New Reservation (Staff)</h3>
                         <form onSubmit={submit} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>
@@ -505,11 +507,11 @@ export default function Index({ reservations, tables }) {
                                 <label className="block text-xs font-semibold text-gray-600 mb-1">How is this coming in? *</label>
                                 <div className="grid grid-cols-2 gap-2">
                                     <button type="button" onClick={() => form.setData('source', 'phone_call')}
-                                        className={`rounded-xl border py-2 text-xs font-bold transition ${form.data.source === 'phone_call' ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-gray-200 text-gray-500'}`}>
+                                        className={`rounded-xl border py-2 text-xs font-bold transition ${form.data.source === 'phone_call' ? 'border-brass-500 bg-brass-50 text-brass-700' : 'border-gray-200 text-gray-500'}`}>
                                         Phone call
                                     </button>
                                     <button type="button" onClick={() => form.setData('source', 'walk_in')}
-                                        className={`rounded-xl border py-2 text-xs font-bold transition ${form.data.source === 'walk_in' ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-gray-200 text-gray-500'}`}>
+                                        className={`rounded-xl border py-2 text-xs font-bold transition ${form.data.source === 'walk_in' ? 'border-brass-500 bg-brass-50 text-brass-700' : 'border-gray-200 text-gray-500'}`}>
                                         Walk-in / in person
                                     </button>
                                 </div>
@@ -540,7 +542,7 @@ export default function Index({ reservations, tables }) {
                             </div>
                             <div className="sm:col-span-2">
                                 <button type="submit" disabled={form.processing}
-                                    className="rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white disabled:opacity-50">
+                                    className="rounded-xl bg-brass-600 px-6 py-2.5 text-sm font-bold text-white disabled:opacity-50">
                                     {form.processing ? 'Saving…' : '+ Confirm Reservation'}
                                 </button>
                             </div>
@@ -581,7 +583,7 @@ export default function Index({ reservations, tables }) {
                         <p className="text-4xl mb-3">📅</p>
                         <p className="text-gray-500 font-medium">No upcoming reservations or deliveries.</p>
                         <button onClick={() => setShowForm(true)}
-                            className="mt-4 rounded-xl bg-indigo-600 px-5 py-2 text-sm font-semibold text-white">
+                            className="mt-4 rounded-xl bg-brass-600 px-5 py-2 text-sm font-semibold text-white">
                             Add first reservation
                         </button>
                     </div>

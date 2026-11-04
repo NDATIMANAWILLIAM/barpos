@@ -1,3 +1,4 @@
+import PageIntro from '@/Components/PageIntro';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm } from '@inertiajs/react';
 
@@ -52,7 +53,8 @@ export default function Business({ business, payment }) {
         <AuthenticatedLayout header="Business Settings">
             <Head title="Business Settings" />
 
-            <div className="mx-auto max-w-3xl space-y-6 p-4 sm:p-6">
+            <div className="management-page settings-page">
+                <PageIntro eyebrow="Business settings" title="Business settings" description="Keep your business details and accepted payment methods up to date." />
 
                 {/* ── Business details ── */}
                 <div className="rounded-2xl bg-white shadow-sm ring-1 ring-ink-100 p-6">

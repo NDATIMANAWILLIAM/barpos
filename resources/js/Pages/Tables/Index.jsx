@@ -1,3 +1,4 @@
+import PageIntro from '@/Components/PageIntro';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, router } from '@inertiajs/react';
 import { useState, useRef } from 'react';
@@ -108,9 +109,9 @@ function TableCard({ t, appUrl, servants, onShowQR }) {
 
     if (editing) {
         return (
-            <div className="rounded-2xl bg-indigo-50 p-5 ring-2 ring-indigo-300">
+            <div className="table-edit-card rounded-2xl bg-brass-50 p-5 ring-2 ring-brass-300">
                 <form onSubmit={save} className="space-y-4">
-                    <p className="text-xs font-bold uppercase tracking-wide text-indigo-500">Editing Table {t.label}</p>
+                    <p className="text-xs font-bold uppercase tracking-wide text-brass-500">Editing Table {t.label}</p>
                     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                         <div>
                             <label className="block text-xs font-semibold text-gray-500 mb-1">Label *</label>
@@ -161,7 +162,7 @@ function TableCard({ t, appUrl, servants, onShowQR }) {
 
                     <div className="flex gap-2">
                         <button type="submit" disabled={form.processing}
-                            className="rounded-xl bg-indigo-600 px-5 py-2 text-sm font-bold text-white disabled:opacity-50 shadow-sm">
+                            className="rounded-xl bg-brass-600 px-5 py-2 text-sm font-bold text-white disabled:opacity-50 shadow-sm">
                             {form.processing ? 'Saving…' : 'Save Changes'}
                         </button>
                         <button type="button" onClick={() => setEditing(false)}
@@ -175,9 +176,9 @@ function TableCard({ t, appUrl, servants, onShowQR }) {
     }
 
     return (
-        <div className="flex items-start gap-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-100 hover:ring-indigo-100 transition">
+        <div className="table-card bg-white p-5">
             {/* Table badge */}
-            <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl bg-slate-800 text-white shadow-md">
+            <div className="table-number flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl bg-ink-800 text-white">
                 <span className="text-[10px] opacity-50 leading-none uppercase tracking-wider">Table</span>
                 <span className="text-lg font-extrabold leading-tight">{t.label}</span>
             </div>
@@ -207,7 +208,7 @@ function TableCard({ t, appUrl, servants, onShowQR }) {
                             {ROLE_LABELS[servant.role] ?? servant.role}
                         </span>
                         {servant.phone && (
-                            <a href={`tel:${servant.phone}`} className="text-xs text-gray-400 hover:text-indigo-600 hover:underline">
+                            <a href={`tel:${servant.phone}`} className="text-xs text-gray-400 hover:text-brass-600 hover:underline">
                                 📞 {servant.phone}
                             </a>
                         )}
@@ -232,7 +233,7 @@ function TableCard({ t, appUrl, servants, onShowQR }) {
                     ✏️ Edit
                 </button>
                 <button onClick={regenQr}
-                    className="text-xs text-gray-300 hover:text-indigo-500 transition px-1 py-0.5">
+                    className="text-xs text-gray-300 hover:text-brass-500 transition px-1 py-0.5">
                     ↻ New QR
                 </button>
                 <button onClick={deleteIt}
@@ -272,7 +273,7 @@ export default function Index({ tables, servants, appUrl }) {
                         </p>
                     </div>
                     <button onClick={() => setShowAddForm(!showAddForm)}
-                        className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white hover:bg-indigo-700 transition shadow-sm">
+                        className="rounded-xl bg-brass-600 px-4 py-2 text-sm font-bold text-white hover:bg-brass-700 transition shadow-sm">
                         {showAddForm ? '✕ Cancel' : '+ Add Table'}
                     </button>
                 </div>
@@ -282,10 +283,11 @@ export default function Index({ tables, servants, appUrl }) {
 
             {qrTable && <QRModal table={qrTable} appUrl={appUrl} onClose={() => setQrTable(null)} />}
 
-            <div className="mx-auto max-w-5xl space-y-6 p-4 sm:p-6">
+            <div className="management-page tables-page space-y-6">
+                <PageIntro eyebrow="Dining room" title="Tables & guest access" description="Arrange your tables, assign service, and share the menu with a QR code." />
 
                 {/* Info banner */}
-                <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+                <div className="table-instructions rounded-xl border border-gray-200 bg-white p-5">
                     <div className="flex items-start gap-3">
                         <span className="text-2xl shrink-0">📱</span>
                         <div className="text-sm">
@@ -303,7 +305,7 @@ export default function Index({ tables, servants, appUrl }) {
 
                 {/* Add table form */}
                 {showAddForm && (
-                    <div className="rounded-2xl bg-white p-6 shadow ring-2 ring-indigo-300">
+                    <div className="rounded-2xl bg-white p-6 shadow ring-2 ring-brass-300">
                         <h3 className="mb-4 text-sm font-bold uppercase tracking-wide text-gray-400">New Table</h3>
                         <form onSubmit={submitAdd} className="space-y-4">
                             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -335,7 +337,7 @@ export default function Index({ tables, servants, appUrl }) {
                                 </div>
                             </div>
                             <button type="submit" disabled={addForm.processing}
-                                className="rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white disabled:opacity-50 shadow-sm hover:bg-indigo-700 transition">
+                                className="rounded-xl bg-brass-600 px-6 py-2.5 text-sm font-bold text-white disabled:opacity-50 shadow-sm hover:bg-brass-700 transition">
                                 {addForm.processing ? 'Adding…' : 'Add Table'}
                             </button>
                         </form>
@@ -372,7 +374,7 @@ export default function Index({ tables, servants, appUrl }) {
                                 <div className="h-px flex-1 bg-gray-100" />
                                 <span className="text-xs text-gray-300">{zoneTables.length} table{zoneTables.length !== 1 ? 's' : ''}</span>
                             </div>
-                            <div className="space-y-3">
+                            <div className="table-zone-grid">
                                 {zoneTables.map(t => (
                                     <TableCard key={t.id} t={t} appUrl={appUrl} servants={servants} onShowQR={setQrTable} />
                                 ))}

@@ -39,11 +39,11 @@ export default function Receipt({ order, payment, cashier, business }) {
             <Head title={`Receipt #${order.order_number}`} />
 
             {/* ── SCREEN VIEW ─────────────────────────────────────────────── */}
-            <div className="min-h-screen bg-ink-50 flex flex-col items-center py-8 px-4 print:hidden">
+            <div className="receipt-page min-h-screen flex flex-col items-center py-8 px-4 print:hidden">
                 <div className="w-full max-w-md space-y-4">
 
                     {/* Success banner */}
-                    <div className="rounded-2xl bg-green-600 p-5 text-center text-white shadow-lg">
+                    <div className="receipt-confirmation rounded-2xl p-5 text-center">
                         <div className="flex justify-center mb-2">
                             <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white shadow">
                                 <Icon.check className="h-7 w-7 text-green-600" />
@@ -54,7 +54,7 @@ export default function Receipt({ order, payment, cashier, business }) {
                     </div>
 
                     {/* Receipt card */}
-                    <div className="rounded-2xl bg-white shadow-xl overflow-hidden">
+                    <div className="receipt-paper bg-white overflow-hidden">
                         {/* Header */}
                         <div className="bg-ink-950 px-6 pt-6 pb-4 text-center text-white">
                             <img src="/images/logo.jpeg" alt={business?.name ?? 'Logo'}

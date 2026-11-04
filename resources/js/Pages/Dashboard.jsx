@@ -35,37 +35,23 @@ const ACTIVITY_ICON = {
 };
 
 function StatCard({ label, value, sub, icon: IconCmp, tone, highlight }) {
-    const tones = {
-        blue:  'bg-ink-900 text-white',
-        green: 'bg-green-700 text-white',
-        red:   'bg-red-600 text-white',
-        gray:  'bg-ink-200 text-ink-700',
-        brass: 'bg-brass-600 text-white',
-    };
     return (
-        <div className={`relative overflow-hidden rounded-2xl p-5 shadow-sm ${tones[tone]}`}>
-            <IconCmp className="mb-3 h-6 w-6 opacity-90" />
-            <div className="text-2xl font-extrabold leading-none">{value}</div>
-            <div className="mt-1.5 text-xs font-semibold uppercase tracking-wider opacity-80">{label}</div>
-            {sub && <div className="mt-0.5 text-xs opacity-60">{sub}</div>}
-            {highlight && (
-                <div className="absolute right-3 top-3 h-2 w-2 rounded-full bg-white animate-pulse" />
-            )}
+        <div className="dashboard-stat" data-tone={tone}>
+            <span className="dashboard-stat-icon"><IconCmp className="h-4 w-4" /></span>
+            <div className="dashboard-stat-value">{value}</div>
+            <div className="dashboard-stat-label">{label}</div>
+            {sub && <div className="dashboard-stat-sub">{sub}</div>}
+            {highlight && <span className="dashboard-stat-alert" />}
         </div>
     );
 }
 
 function QuickAction({ href, icon: IconCmp, label, description, target }) {
     return (
-        <Link href={href} target={target}
-            className="group flex items-start gap-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-ink-100 transition-all hover:shadow-md hover:ring-brass-200">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-ink-50 text-ink-700 group-hover:bg-brass-50 group-hover:text-brass-600 transition">
-                <IconCmp className="h-5 w-5" />
-            </div>
-            <div>
-                <p className="font-bold leading-snug text-ink-900">{label}</p>
-                <p className="mt-0.5 text-xs text-ink-400 leading-snug">{description}</p>
-            </div>
+        <Link href={href} target={target} className="dashboard-action">
+            <div><IconCmp className="h-5 w-5" /></div>
+            <div><strong>{label}</strong><p>{description}</p></div>
+            <span aria-hidden="true">&rarr;</span>
         </Link>
     );
 }
@@ -173,25 +159,18 @@ export default function Dashboard({ stats, activity, onDutyContact }) {
         <AuthenticatedLayout header="Dashboard">
             <Head title="Dashboard" />
 
-            <div className="space-y-6 p-4 sm:p-6 lg:p-8">
+            <div className="dashboard-page space-y-7">
 
                 {/* ── Welcome Banner ── */}
-                <div className="relative overflow-hidden rounded-2xl bg-ink-950 p-6 text-white shadow-xl">
-                    <div className="flex items-start justify-between gap-4">
-                        <div>
-                            <p className="text-sm text-brass-400 font-semibold">{greeting},</p>
-                            <h1 className="mt-0.5 text-2xl font-extrabold">{user?.name}</h1>
-                            <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1">
-                                <span className="h-2 w-2 rounded-full bg-brass-400 animate-pulse" />
-                                <span className="text-xs font-medium text-brass-300">{roleLabel}</span>
-                            </div>
-                        </div>
-                        <div className="shrink-0 text-right">
-                            <p className="text-xs text-ink-300">{new Date().toLocaleDateString('en-RW', { weekday: 'short', day: 'numeric', month: 'short' })}</p>
-                            <p className="text-2xl font-mono font-bold text-white mt-0.5">
-                                {new Date().toLocaleTimeString('en-RW', { hour: '2-digit', minute: '2-digit' })}
-                            </p>
-                        </div>
+                <div className="dashboard-welcome">
+                    <div>
+                        <p>{greeting},</p>
+                        <h1>{user?.name}</h1>
+                        <span className="dashboard-role">{roleLabel}</span>
+                    </div>
+                    <div className="text-right">
+                        <p className="ui-eyebrow">Today's service</p>
+                        <p className="mt-2">{new Date().toLocaleDateString('en-RW', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
                     </div>
                 </div>
 

@@ -1,3 +1,4 @@
+import PageIntro from '@/Components/PageIntro';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
@@ -27,7 +28,7 @@ function OrderCard({ order }) {
 
     return (
         <div
-            className={`rounded-xl border-2 bg-white shadow-sm ${
+            className={`kitchen-ticket rounded-xl border-2 bg-white shadow-sm ${
                 pending.length > 0 ? 'border-orange-300' : 'border-green-300'
             }`}
         >
@@ -137,9 +138,10 @@ export default function Index({ orders }) {
         >
             <Head title="Kitchen Display" />
 
-            <div className="mx-auto max-w-6xl p-4 sm:p-6">
+            <div className="management-page kitchen-page space-y-6">
+                <PageIntro eyebrow="Kitchen pass" title="Orders in preparation" description="Work through each ticket and mark items ready for service." />
 
-                <div className="mb-6 flex items-center gap-3">
+                <div className="kitchen-toolbar mb-6 flex flex-wrap items-center gap-3">
                     <div className="relative rounded-xl bg-orange-500 px-6 py-3 text-sm font-semibold text-white shadow">
                         Food orders
                         {pending > 0 && (
