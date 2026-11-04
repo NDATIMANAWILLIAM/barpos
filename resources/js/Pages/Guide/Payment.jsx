@@ -1,5 +1,6 @@
+import { getRestaurantName } from '@/utils/branding';
 import { useState } from 'react';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 
 /* ── tiny helpers ───────────────────────────────────────────────── */
 const rwf = (n) => new Intl.NumberFormat('en-RW').format(n ?? 0) + ' RWF';
@@ -58,7 +59,7 @@ function TabSetup({ appUrl }) {
             <div className="rounded-2xl bg-amber-50 ring-2 ring-amber-400 p-5">
                 <h3 className="text-base font-extrabold text-amber-900 mb-1">🌐 The system is live on the internet</h3>
                 <p className="text-sm text-amber-800 mb-4">
-                    Isaro Rubengera runs on a hosted server, not on any one computer — every device (phone, tablet, computer)
+                    The restaurant system runs on a hosted server, not on any one computer — every device (phone, tablet, computer)
                     reaches it the same way, over the internet, at:
                 </p>
                 <div className="rounded-xl bg-gray-900 px-4 py-3 font-mono text-sm text-green-400 mb-3 break-all">
@@ -525,18 +526,19 @@ const TABS = [
 ];
 
 export default function Payment({ appUrl }) {
+    const businessName = getRestaurantName(usePage().props.business);
     const [tab, setTab] = useState('setup');
     const Active = TABS.find(t => t.key === tab)?.component ?? TabSetup;
 
     return (
         <>
-            <Head title="Isaro Rubengera Guide" />
+            <Head title="Staff guide" />
             <div className="guide-page min-h-screen pb-16">
 
                 {/* Header */}
                 <div className="guide-header px-4 py-10 text-center text-white">
                     <p className="mb-3 text-xs uppercase tracking-widest text-brass-300">Staff handbook</p>
-                    <h1 className="text-2xl font-extrabold sm:text-3xl">Isaro Rubengera Complete Guide</h1>
+                    <h1 className="text-2xl font-extrabold sm:text-3xl">{businessName} / Staff guide</h1>
                     <p className="mt-2 text-brass-200 text-sm">Everything you need to run your bar or guest house</p>
                     <Link href="/" className="mt-4 inline-block rounded-full bg-white/20 px-4 py-1.5 text-sm font-semibold text-white hover:bg-white/30">
                         ← Back to Menu

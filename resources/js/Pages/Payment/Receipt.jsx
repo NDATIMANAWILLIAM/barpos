@@ -1,3 +1,4 @@
+import { getRestaurantName } from '@/utils/branding';
 import { Head, Link } from '@inertiajs/react';
 
 const rwf = (n) => new Intl.NumberFormat('en-RW').format(n ?? 0) + ' RWF';
@@ -60,7 +61,7 @@ export default function Receipt({ order, payment, cashier, business }) {
                             <img src="/images/logo.jpeg" alt={business?.name ?? 'Logo'}
                                 className="mx-auto mb-2 h-14 w-14 rounded-xl object-cover ring-1 ring-white/10" />
                             <p className="text-xs font-bold uppercase tracking-widest text-brass-400">Official Receipt</p>
-                            <h2 className="mt-1 text-2xl font-extrabold">{business?.name ?? 'Isaro Rubengera'}</h2>
+                            <h2 className="mt-1 text-2xl font-extrabold">{getRestaurantName(business)}</h2>
                             {business?.address && (
                                 <p className="mt-1 flex items-center justify-center gap-1 text-xs text-ink-400">
                                     <Icon.pin className="h-3 w-3" /> {business.address}
@@ -174,7 +175,7 @@ export default function Receipt({ order, payment, cashier, business }) {
             <div className="hidden print:block" style={{ width: '80mm', fontFamily: 'monospace', fontSize: '12px', padding: '4mm' }}>
                 {/* Header */}
                 <div style={{ textAlign: 'center', borderBottom: '1px dashed #000', paddingBottom: '4mm', marginBottom: '3mm' }}>
-                    <div style={{ fontSize: '18px', fontWeight: 'bold' }}>{business?.name ?? 'Isaro Rubengera'}</div>
+                    <div style={{ fontSize: '18px', fontWeight: 'bold' }}>{getRestaurantName(business)}</div>
                     {business?.address && <div>{business.address}</div>}
                     {business?.phone   && <div>Tel: {business.phone}</div>}
                     {business?.tin     && <div>TIN: {business.tin}</div>}

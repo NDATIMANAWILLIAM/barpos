@@ -1,3 +1,4 @@
+import { getRestaurantName } from '@/utils/branding';
 import { Head, useForm, usePage, Link } from '@inertiajs/react';
 
 // ── Icon set (inline SVG — no emoji) ────────────────────────────────────────
@@ -24,6 +25,7 @@ function Field({ label, error, children, hint }) {
 }
 
 export default function Book({ business, contact, tables, minDate, maxDate }) {
+    const businessName = getRestaurantName(business);
     const { props } = usePage();
     const booked = props.flash?.booked;
 
@@ -69,7 +71,7 @@ export default function Book({ business, contact, tables, minDate, maxDate }) {
                         <div>
                             <h1 className="text-2xl font-extrabold text-ink-900">Request Received!</h1>
                             <p className="mt-2 text-ink-600">
-                                Thank you for choosing <strong>{business.name}</strong>.<br />
+                                Thank you for choosing <strong>{businessName}</strong>.<br />
                                 We will call you within 5 minutes to confirm.
                             </p>
                         </div>
@@ -100,14 +102,14 @@ export default function Book({ business, contact, tables, minDate, maxDate }) {
     /* ── Booking form ── */
     return (
         <>
-            <Head title={`Book — ${business.name}`} />
+            <Head title={`Book — ${businessName}`} />
             <div className="booking-page">
 
                 {/* Header */}
                 <div className="booking-intro text-white">
-                    <img src="/images/logo.jpeg" alt={business.name}
+                    <img src="/images/logo.jpeg" alt={businessName}
                         className="mx-auto mb-3 h-16 w-16 rounded-xl object-cover ring-1 ring-white/10" />
-                    <h1 className="text-2xl font-extrabold">{business.name}</h1>
+                    <h1 className="text-2xl font-extrabold">{businessName}</h1>
                     <p className="text-ink-300 mt-1 text-sm">Book a table or request delivery — no account needed</p>
                     {business.address && (
                         <p className="flex items-center justify-center gap-1 text-ink-400 text-xs mt-1">

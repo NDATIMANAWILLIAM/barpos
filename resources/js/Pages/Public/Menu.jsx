@@ -1,3 +1,4 @@
+import { getRestaurantName } from '@/utils/branding';
 import { useState, useRef, useEffect, useMemo, useCallback, memo } from 'react';
 import { Head } from '@inertiajs/react';
 
@@ -358,7 +359,7 @@ export default function Menu({ categories, table, business, contact }) {
     const catRefs  = useRef({});
     const mainRef  = useRef(null);
 
-    const businessName = business?.name ?? 'Our Menu';
+    const businessName = getRestaurantName(business);
 
     // Build itemMap with category_name
     const itemMap = useMemo(() => {
@@ -441,34 +442,13 @@ export default function Menu({ categories, table, business, contact }) {
 
                 {/* ── DESKTOP: Left Category Sidebar ─────────────────────── */}
                 <aside className="guest-categories hidden lg:flex shrink-0 flex-col bg-white z-10">
-                    {/* Brand */}
-                    <div className="bg-ink-950 px-5 py-5 text-white">
-                        <img src="/images/logo.jpeg" alt={businessName}
-                            className="mb-3 h-14 w-14 rounded-xl object-cover ring-1 ring-white/10" />
-                        <p className="text-xs font-bold uppercase tracking-widest text-brass-400">Welcome to</p>
-                        <h1 className="mt-1 text-lg font-extrabold leading-tight">{businessName}</h1>
-                        {table && (
-                            <div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-brass-500/20 px-2.5 py-1">
-                                <Icon.seat className="h-3.5 w-3.5 text-brass-300" />
-                                <span className="text-xs font-bold text-brass-300">Table {table.label}</span>
-                            </div>
-                        )}
-                        {contact?.phone && (
-                            <a href={`tel:${contact.phone}`}
-                                className="mt-3 flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 hover:bg-white/15 transition">
-                                <Icon.phone className="h-4 w-4 shrink-0 text-brass-300" />
-                                <div className="min-w-0">
-                                    <p className="text-[10px] uppercase tracking-wide text-ink-300">Call us now</p>
-                                    <p className="truncate text-sm font-bold">{contact.name ? `${contact.name} · ` : ''}{contact.phone}</p>
-                                </div>
-                            </a>
-                        )}
-                        <a href="/book"
-                            className="mt-2 flex items-center gap-2 rounded-xl bg-brass-500 px-3 py-2 hover:bg-brass-400 transition">
-                            <Icon.calendar className="h-4 w-4 shrink-0 text-white" />
-                            <span className="text-sm font-bold text-white">Book a Table or Delivery</span>
-                        </a>
+                    <div className="guest-sidebar-brand">
+                        <img src="/images/logo.jpeg" alt="" />
+                        <div><strong>{businessName}</strong><span>Restaurant menu</span></div>
                     </div>
+                    {table && (
+                        <div className="guest-sidebar-table"><Icon.seat className="h-4 w-4" /><span>Ordering for table <strong>{table.label}</strong></span></div>
+                    )}
 
                     {/* Search box */}
                     <div className="border-b px-3 py-2.5">
@@ -494,26 +474,25 @@ export default function Menu({ categories, table, business, contact }) {
                         ))}
                     </div>
 
-                    {/* Category list */}
-                    <nav className="flex-1 overflow-y-auto py-2">
-                        {filtered.map((c, i) => {
-                            const clr = CAT_COLOURS[i % CAT_COLOURS.length];
-                            const active = activeSlug === c.slug;
-                            return (
-                                <button key={c.slug} onClick={() => scrollToCategory(c.slug)}
-                                    className={`flex w-full items-center gap-3 px-4 py-2.5 text-sm transition ${active ? 'bg-brass-50 font-bold text-brass-700 border-r-2 border-brass-500' : 'text-ink-600 hover:bg-ink-50 hover:text-ink-900'}`}>
-                                    <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg font-serif text-sm font-semibold ${clr.split(' ')[0]}`}>{catMonogram(c.name)}</span>
-                                    <span className="truncate">{c.name}</span>
-                                    <span className="ml-auto text-xs text-ink-300">{c.items.length}</span>
-                                </button>
-                            );
-                        })}
+                    <nav aria-label="Menu categories" className="guest-category-navigation">
+                        <p className="guest-category-label">Browse categories</p>
+                        {filtered.map(c => (
+                            <button key={c.slug} onClick={() => scrollToCategory(c.slug)}
+                                aria-pressed={activeSlug === c.slug}
+                                className={`guest-category-link ${activeSlug === c.slug ? 'is-active' : ''}`}>
+                                <span>{c.name}</span><span className="guest-category-count">{c.items.length}</span>
+                            </button>
+                        ))}
                     </nav>
 
-                    {/* Footer */}
-                    <div className="border-t px-4 py-3 text-center">
-                        <p className="text-xs text-ink-400">All prices in RWF</p>
-                        <a href="/login" className="mt-1 block text-xs text-ink-300 hover:text-ink-500">Staff login</a>
+                    <div className="guest-sidebar-footer">
+                        <a href="/book" className="guest-book-link"><Icon.calendar className="h-4 w-4" />Reservations &amp; delivery</a>
+                        {contact?.phone && (
+                            <a href={`tel:${contact.phone}`} className="guest-contact-link">
+                                <Icon.phone className="h-4 w-4" /><span><small>Call the restaurant</small><strong>{contact.phone}</strong></span>
+                            </a>
+                        )}
+                        <div className="guest-sidebar-meta"><span>Prices in RWF</span><a href="/login">Staff sign in</a></div>
                     </div>
                 </aside>
 
@@ -523,8 +502,8 @@ export default function Menu({ categories, table, business, contact }) {
                     {/* ── Center: Menu Items ── */}
                     <main ref={mainRef} className="guest-menu-main flex-1 overflow-y-auto">
                         <header className="guest-menu-intro hidden lg:block">
-                            <p className="ui-eyebrow">From our kitchen &amp; bar</p>
-                            <h2>Made for good company.</h2>
+                            <p className="ui-eyebrow">Our menu</p>
+                            <h1>{businessName}</h1>
                             <p>{table ? `Settle in at table ${table.label}. Choose your favourites and we will take care of the rest.` : 'Browse our food and drinks. Scan the QR code at your table to order, or contact us to plan your visit.'}</p>
                         </header>
 

@@ -1,6 +1,7 @@
+import { getRestaurantName } from '@/utils/branding';
 import PageIntro from '@/Components/PageIntro';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
 const rwf = (n) => new Intl.NumberFormat('en-RW').format(n ?? 0) + ' RWF';
@@ -150,6 +151,7 @@ function FoodDrinkSplit({ foodTotal, drinkTotal }) {
 const SOURCE_LABEL = { qr_scan: 'QR self-order', phone_call: 'Phone call', walk_in: 'Walk-in' };
 
 export default function Index({ period, revenue, orders, byCategory, foodTotal, drinkTotal, byMethod, bySource, topItems, trend, workerPerf, activity }) {
+    const businessName = getRestaurantName(usePage().props.business);
     const [loadingPeriod, setLoadingPeriod] = useState(false);
     const [loadError, setLoadError] = useState(null);
 
@@ -192,7 +194,7 @@ export default function Index({ period, revenue, orders, byCategory, foodTotal, 
 
             {/* Print header */}
             <div className="hidden print:block px-6 pt-4 pb-2 border-b">
-                <h1 className="text-2xl font-extrabold">Isaro Rubengera — Revenue Report</h1>
+                <h1 className="text-2xl font-extrabold">{businessName} — Revenue Report</h1>
                 <p className="text-sm text-gray-500">{today} · Period: {PERIODS.find(p => p.key === period)?.label}</p>
             </div>
 

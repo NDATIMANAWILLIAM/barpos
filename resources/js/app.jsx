@@ -5,8 +5,13 @@ import './bootstrap';
 import { createInertiaApp, router } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
+import { getRestaurantName, restaurantPageTitle } from './utils/branding';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+let appName = getRestaurantName();
+
+router.on('navigate', ({ detail }) => {
+    appName = getRestaurantName(detail.page.props.business);
+});
 
 // Without this, a failed page visit (validation error aside — those are
 // handled separately by Inertia) fails silently: the progress bar finishes
@@ -26,13 +31,14 @@ router.on('exception', (event) => {
 });
 
 createInertiaApp({
-    title: (title) => `${title} - ${appName}`,
+    title: (title) => restaurantPageTitle(title, appName),
     resolve: (name) =>
         resolvePageComponent(
             `./Pages/${name}.jsx`,
             import.meta.glob('./Pages/**/*.jsx'),
         ),
     setup({ el, App, props }) {
+        appName = getRestaurantName(props.initialPage.props.business);
         const root = createRoot(el);
 
         root.render(<App {...props} />);

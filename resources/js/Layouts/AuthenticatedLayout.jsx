@@ -1,3 +1,4 @@
+import { getRestaurantName } from '@/utils/branding';
 import { Link, usePage, router } from '@inertiajs/react';
 import { useState, useEffect, useCallback } from 'react';
 import { Dialog, DialogPanel } from '@headlessui/react';
@@ -150,17 +151,19 @@ function NavItem({ href, icon, label, active, badge, onClick }) {
 }
 
 function Sidebar({ user, meta, navItems, onClose }) {
-    const businessName = usePage().props.business?.name ?? 'BarPOS';
+    const businessName = getRestaurantName(usePage().props.business);
     const groups = [
-        { key: 'ops', label: 'Daily service' },
-        { key: 'mgmt', label: 'Your business' },
-        { key: 'more', label: 'Help & resources' },
+        { key: 'ops', label: 'Service' },
+        { key: 'mgmt', label: 'Management' },
+        { key: 'more', label: 'Support' },
     ];
     return (
         <div className="workspace-sidebar">
             <div className="workspace-brand">
-                <img src="/images/logo.jpeg" alt="" />
-                <div><strong>{businessName}</strong><span>Hospitality workspace</span></div>
+                <Link href={route('dashboard')} onClick={onClose} className="workspace-brand-link">
+                    <img src="/images/logo.jpeg" alt="" />
+                    <div className="workspace-brand-copy"><strong>{businessName}</strong><span>Restaurant management</span></div>
+                </Link>
                 {onClose && <button onClick={onClose} aria-label="Close navigation" className="ml-auto lg:hidden">{I.x}</button>}
             </div>
             <nav aria-label="Main navigation" className="workspace-navigation">
@@ -191,7 +194,7 @@ function Sidebar({ user, meta, navItems, onClose }) {
 export default function AuthenticatedLayout({ header, children }) {
     const user          = usePage().props.auth.user;
     const notifications = usePage().props.notifications ?? [];
-    const businessName = usePage().props.business?.name ?? 'BarPOS';
+    const businessName = getRestaurantName(usePage().props.business);
     const role   = user?.role ?? '';
     const meta   = ROLE_META[role] ?? { label: role, colour: 'bg-ink-500', text: 'text-ink-700', badge: 'bg-ink-100' };
     const [sideOpen, setSideOpen] = useState(false);
@@ -244,7 +247,7 @@ export default function AuthenticatedLayout({ header, children }) {
                     </button>
 
                     {/* Mobile logo */}
-                    <div className="flex items-center gap-2 lg:hidden">
+                    <div className="workspace-mobile-brand flex min-w-0 items-center gap-2 lg:hidden">
                         <img src="/images/logo.jpeg" alt={businessName} className="h-7 w-7 rounded-lg object-cover" />
                         <span className="font-bold text-ink-800 text-sm">{businessName}</span>
                     </div>
