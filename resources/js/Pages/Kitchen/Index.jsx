@@ -1,7 +1,8 @@
 import PageIntro from '@/Components/PageIntro';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router } from '@inertiajs/react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { playAlert } from '@/utils/alertSound';
 
 const ITEM_STATUS_COLORS = {
     new:    'bg-orange-100 text-orange-700',
@@ -119,6 +120,16 @@ export default function Index({ orders }) {
     const pending = orders.filter(
         (o) => (o.kitchen_items ?? []).some((i) => i.status === 'new')
     ).length;
+
+    // Chime whenever a new food ticket lands — staff shouldn't have to
+    // keep staring at the screen to notice one arrived between refreshes.
+    const prevPendingRef = useRef(null);
+    useEffect(() => {
+        if (prevPendingRef.current !== null && pending > prevPendingRef.current) {
+            playAlert();
+        }
+        prevPendingRef.current = pending;
+    }, [pending]);
 
     return (
         <AuthenticatedLayout

@@ -23,6 +23,7 @@ const I = {
     ops:      <svg viewBox="0 0 24 24" fill="currentColor" className="w-[18px] h-[18px]"><path d="M3 13.5a.75.75 0 01.75-.75h16.5a.75.75 0 010 1.5H3.75A.75.75 0 013 13.5zM3 8.25a.75.75 0 01.75-.75h16.5a.75.75 0 010 1.5H3.75A.75.75 0 013 8.25zM3 18.75a.75.75 0 01.75-.75h16.5a.75.75 0 010 1.5H3.75a.75.75 0 01-.75-.75z"/><circle cx="19" cy="5" r="4" fill="#ef4444"/><text x="19" y="7" fontSize="5" fill="white" textAnchor="middle">!</text></svg>,
     settings: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-[18px] h-[18px]"><path strokeLinecap="round" d="M4 6h8M16 6h4M4 12h1M9 12h11M4 18h9M17 18h3"/><circle cx="12" cy="6" r="2"/><circle cx="5.5" cy="12" r="2"/><circle cx="13" cy="18" r="2"/></svg>,
     bell:     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 8a6 6 0 1112 0c0 4 1.5 5.5 2 6.5H4c.5-1 2-2.5 2-6.5z"/><path strokeLinecap="round" d="M10 19a2 2 0 004 0"/></svg>,
+    cup:      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-[18px] h-[18px]"><path strokeLinecap="round" strokeLinejoin="round" d="M5 3h10l-1 11a4 4 0 01-4 4h0a4 4 0 01-4-4L5 3z"/><path strokeLinecap="round" strokeLinejoin="round" d="M15 7h2a2 2 0 012 2v1a2 2 0 01-2 2h-2.4"/><path strokeLinecap="round" d="M6 20h8"/></svg>,
 };
 
 function fmtRelative(iso) {
@@ -102,13 +103,15 @@ const ROLE_META = {
     waiter:       { label: 'Servant',       colour: 'bg-purple-500',  text: 'text-purple-700', badge: 'bg-purple-100'  },
     receptionist: { label: 'Receptionist',  colour: 'bg-pink-500',    text: 'text-pink-700',   badge: 'bg-pink-100'    },
     kitchen:      { label: 'Kitchen Staff', colour: 'bg-orange-500',  text: 'text-orange-700', badge: 'bg-orange-100'  },
+    bar:          { label: 'Bar Staff',     colour: 'bg-cyan-500',   text: 'text-cyan-700',  badge: 'bg-cyan-100'   },
     storekeeper:  { label: 'Storekeeper',   colour: 'bg-ink-500',   text: 'text-ink-700',  badge: 'bg-ink-100'   },
 };
 const ADMIN     = ['owner', 'manager'];
 const POS_ROLES = ['owner', 'manager', 'cashier', 'waiter'];
 const KIT_ROLES = ['owner', 'manager', 'kitchen'];
+const BAR_ROLES = ['owner', 'manager', 'bar'];
 const RES_ROLES = ['owner', 'manager', 'waiter', 'receptionist'];
-const OPS_ROLES = ['owner', 'manager', 'cashier', 'waiter', 'receptionist', 'kitchen'];
+const OPS_ROLES = ['owner', 'manager', 'cashier', 'waiter', 'receptionist', 'kitchen', 'bar'];
 
 // ── Flash Banner ──────────────────────────────────────────────────────────────
 function FlashBanner() {
@@ -207,6 +210,7 @@ export default function AuthenticatedLayout({ header, children }) {
         { href: route('operations.index'),   icon: I.ops,   label: 'Live Operations',match:'operations.*',  show: has(OPS_ROLES), group: 'ops' },
         { href: route('pos.index'),          icon: I.cart,  label: 'Point of Sale',match: 'pos.*',          show: has(POS_ROLES), group: 'ops' },
         { href: route('kitchen.index'),      icon: I.fire,  label: 'Kitchen',      match: 'kitchen.*',      show: has(KIT_ROLES), group: 'ops' },
+        { href: route('bar.index'),          icon: I.cup,   label: 'Bar',          match: 'bar.*',          show: has(BAR_ROLES), group: 'ops' },
         { href: route('reservations.index'), icon: I.cal,   label: 'Reservations', match: 'reservations.*', show: has(RES_ROLES), group: 'ops' },
         { href: route('menu.index'),         icon: I.menu,  label: 'Menu Items',   match: 'menu.*',         show: has(ADMIN),     group: 'mgmt' },
         { href: route('tables.index'),       icon: I.table, label: 'Tables & QR',  match: 'tables.*',       show: has(ADMIN),     group: 'mgmt' },

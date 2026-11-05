@@ -44,6 +44,7 @@ class User extends Authenticatable
         'waiter'       => 'Servant',
         'receptionist' => 'Receptionist',
         'kitchen'      => 'Kitchen Staff',
+        'bar'          => 'Bar Staff',
         'storekeeper'  => 'Storekeeper',
     ];
 
@@ -70,5 +71,10 @@ class User extends Authenticatable
     public function canViewKitchen(): bool
     {
         return $this->hasRole(['owner', 'manager', 'kitchen']);
+    }
+
+    public function canViewBar(): bool
+    {
+        return $this->hasRole(['owner', 'manager', 'bar']);
     }
 }

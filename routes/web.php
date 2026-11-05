@@ -5,6 +5,7 @@ use Inertia\Inertia;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\KitchenController;
+use App\Http\Controllers\BarController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\TableController;
@@ -136,15 +137,21 @@ Route::middleware(['auth', 'role'])->group(function () {
         Route::get('/kitchen', [KitchenController::class, 'index'])->name('kitchen.index');
     });
 
+    // ── Bar display (owner, manager, bar) — drink items only ──────────────
+    Route::middleware('role:owner,manager,bar')->group(function () {
+        Route::get('/bar', [BarController::class, 'index'])->name('bar.index');
+    });
+
     // Marking any item ready (kitchen or bar) — kitchen staff use this from
-    // the Kitchen Display, waiters use it from POS for bar items, since bar
-    // orders intentionally never show up on the kitchen-facing screen.
-    Route::middleware('role:owner,manager,kitchen,waiter')
+    // the Kitchen Display, bar staff from the Bar Display, and waiters can
+    // still use it from POS for bar items as a fallback where no dedicated
+    // bartender is on shift.
+    Route::middleware('role:owner,manager,kitchen,bar,waiter')
         ->patch('/kitchen/items/{orderItem}/ready', [KitchenController::class, 'markReady'])
         ->name('kitchen.items.ready');
 
     // ── Live Operations (all operational staff) ────────────────────────────
-    Route::middleware('role:owner,manager,cashier,waiter,receptionist,kitchen')->group(function () {
+    Route::middleware('role:owner,manager,cashier,waiter,receptionist,kitchen,bar')->group(function () {
         Route::get('/operations',                             [OperationsController::class, 'index'])->name('operations.index');
         Route::patch('/operations/tables/{table}/assign',     [OperationsController::class, 'assignServant'])->name('operations.assign');
     });

@@ -126,7 +126,11 @@ class OrderController extends Controller
                         'quantity'       => $line['quantity'],
                         'line_total'     => $lineTotal,
                         'prep_station'   => 'none',
-                        'status'         => 'new',
+                        // Nothing to prepare for a custom charge line (room
+                        // fee, service charge) — leaving it 'new' silently
+                        // blocked the order from ever reaching 'ready',
+                        // since no kitchen/bar screen ever marks it.
+                        'status'         => 'ready',
                         'notes'          => $line['notes'] ?? null,
                     ]);
                 }

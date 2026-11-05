@@ -24,12 +24,12 @@ class StaffController extends Controller
         $data = $request->validate([
             'name'        => 'required|string|max:120',
             'email'       => 'required|email|unique:users,email',
-            'role'        => 'required|in:owner,manager,cashier,waiter,kitchen,storekeeper',
+            'role'        => 'required|in:owner,manager,cashier,waiter,kitchen,bar,storekeeper',
             'phone'       => 'nullable|string|max:30',
             'password'    => 'required|string|min:6',
             'is_active'   => 'boolean',
             'permissions' => 'nullable|array',
-            'permissions.*' => 'string|in:payments,pos,kitchen,manage,reservations,reports',
+            'permissions.*' => 'string|in:payments,pos,kitchen,bar,manage,reservations,reports',
         ]);
 
         User::create([
@@ -53,12 +53,12 @@ class StaffController extends Controller
 
         $data = $request->validate([
             'name'          => 'required|string|max:120',
-            'role'          => 'required|in:owner,manager,cashier,waiter,kitchen,storekeeper',
+            'role'          => 'required|in:owner,manager,cashier,waiter,kitchen,bar,storekeeper',
             'phone'         => 'nullable|string|max:30',
             'is_active'     => 'required|boolean',
             'password'      => 'nullable|string|min:6',
             'permissions'   => 'nullable|array',
-            'permissions.*' => 'string|in:payments,pos,kitchen,manage,reservations,reports',
+            'permissions.*' => 'string|in:payments,pos,kitchen,bar,manage,reservations,reports',
         ]);
 
         $update = [

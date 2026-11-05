@@ -10,6 +10,7 @@ const ROLE_META = {
     waiter:       { emoji: '🍽️', label: 'Servant',       color: 'text-purple-600', bg: 'bg-purple-100' },
     receptionist: { emoji: '📞', label: 'Receptionist',  color: 'text-pink-600',   bg: 'bg-pink-100'   },
     kitchen:      { emoji: '👨‍🍳', label: 'Kitchen Staff', color: 'text-orange-600', bg: 'bg-orange-100' },
+    bar:          { emoji: '🍹', label: 'Bar Staff',     color: 'text-cyan-600',   bg: 'bg-cyan-100'   },
     storekeeper:  { emoji: '📦', label: 'Storekeeper',   color: 'text-gray-600',   bg: 'bg-gray-100'   },
 };
 
@@ -20,6 +21,7 @@ const ROLE_DESC = {
     waiter:       'Take orders in POS + process payments + manage reservations + live operations',
     receptionist: 'Handle reservations and bookings — call clients, confirm requests',
     kitchen:      'Kitchen display only — mark items ready',
+    bar:          'Bar display only — mark drink items ready',
     storekeeper:  'Inventory management only',
 };
 
@@ -28,6 +30,7 @@ const EXTRA_PERMS = [
     { key: 'payments',     label: 'Process Payments',    desc: 'Can open the payment screen and confirm orders',         emoji: '💳' },
     { key: 'pos',          label: 'Access POS',          desc: 'Can use the Point of Sale screen to take orders',        emoji: '🖥️' },
     { key: 'kitchen',      label: 'Kitchen Display',     desc: 'Can see the kitchen orders screen and mark items ready', emoji: '👨‍🍳' },
+    { key: 'bar',          label: 'Bar Display',         desc: 'Can see the bar orders screen and mark drink items ready', emoji: '🍹' },
     { key: 'reservations', label: 'Reservations',        desc: 'Can view and manage table reservations',                 emoji: '📅' },
     { key: 'manage',       label: 'Menu & Tables',       desc: 'Can add/edit menu items and table QR codes',             emoji: '🍽️' },
     { key: 'reports',      label: 'View Reports',        desc: 'Can see revenue and sales reports',                      emoji: '📊' },

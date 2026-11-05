@@ -1,6 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, router, Link } from '@inertiajs/react';
-import { useState, useEffect } from 'react';
+import { Head, router, Link, usePage } from '@inertiajs/react';
+import { useState, useEffect, useRef } from 'react';
+import { playAlert } from '@/utils/alertSound';
 
 const rwf = (n) => new Intl.NumberFormat('en-RW').format(n) + ' RWF';
 
@@ -35,6 +36,7 @@ function SourceBadge({ source }) {
 const fmtTime = (iso) => new Date(iso).toLocaleTimeString('en-RW', { hour: '2-digit', minute: '2-digit' });
 
 export default function Index({ categories, menuItems, tables, openOrders, todaysOrders, prefillReservation }) {
+    const currentUserId = usePage().props.auth.user.id;
     const [cart, setCart]         = useState([]);
     const [type, setType]         = useState(prefillReservation?.type ?? 'dine_in');
     const [source, setSource]     = useState(prefillReservation ? 'phone_call' : 'walk_in');
@@ -57,13 +59,30 @@ export default function Index({ categories, menuItems, tables, openOrders, today
 
     // Poll for order status changes (e.g. kitchen marking items ready) — a
     // waiter has no other way to know an order is ready without this, since
-    // nothing pushes that update to them otherwise.
+    // nothing pushes that update to them otherwise. 'notifications' is
+    // included so the bell badge stays in sync with this same poll instead
+    // of only refreshing on a full page navigation.
     useEffect(() => {
         const t = setInterval(() => {
-            router.reload({ only: ['openOrders'], preserveScroll: true, preserveState: true });
+            router.reload({ only: ['openOrders', 'notifications'], preserveScroll: true, preserveState: true });
         }, 20000);
         return () => clearInterval(t);
     }, []);
+
+    // Chime when one of MY orders flips to ready — not every waiter's, so
+    // it doesn't turn into background noise on a busy floor with several
+    // waiters logged in on their own screens.
+    const prevOrdersRef = useRef(openOrders);
+    useEffect(() => {
+        const prevById = new Map(prevOrdersRef.current.map((o) => [o.id, o]));
+        const becameReady = openOrders.some((o) => {
+            if (o.waiter_id !== currentUserId) return false;
+            const prev = prevById.get(o.id);
+            return o.status === 'ready' && prev?.status !== 'ready';
+        });
+        if (becameReady) playAlert();
+        prevOrdersRef.current = openOrders;
+    }, [openOrders, currentUserId]);
 
     // Category tabs
     const catList = [
